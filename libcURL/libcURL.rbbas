@@ -334,6 +334,23 @@ Protected Module libcURL
 		  Dim arg As String
 		  For i As Integer = 0 To UBound(output)
 		    arg = output(i)
+		    
+		    ' split combined args into individual args
+		    ' and insert them into the output array.
+		    If Left(arg, 1) = "-" And Left(arg, 2) <> "--" And Len(arg) > 2 Then
+		      arg = Replace(arg, "-", "")
+		      Dim combargs() As String = Split(arg, "")
+		      For j As Integer = 0 To UBound(combargs)
+		        If j = 0 Then
+		          output(i) = "-" + combargs(j)
+		        Else
+		          output.Insert(i + j, "-" + combargs(j))
+		        End If
+		      Next
+		      i = i - 1
+		      Continue
+		    End If
+		    
 		    Select Case True
 		    Case arg = "--append", StrComp("-a", arg, 1) = 0
 		      If Not Client.SetOption(libcURL.Opts.APPEND, True) Then GoTo ParseError
