@@ -66,23 +66,20 @@ Inherits libcURL.cURLHandle
 		  
 		  If Value Is Nil Then Raise New NilObjectException
 		  If Value.Size < 0 Then Raise New OutOfBoundsException
-		  Dim n As MemoryBlock = Name + Chr(0)
 		  Select Case True
 		  Case ContentType <> "" And Filename <> "" ' file part with ContentType
-		    Dim tn As MemoryBlock = ContentType + Chr(0)
-		    Dim fn As MemoryBlock = Filename + Chr(0)
-		    Return FormAddPtr(CURLFORM_COPYNAME, n, CURLFORM_BUFFER, fn, CURLFORM_BUFFERLENGTH, Ptr(Value.Size), CURLFORM_BUFFERPTR, Value, CURLFORM_CONTENTTYPE, tn)
+		    Return FormAdd1(CURLFORM_COPYNAME, Name, CURLFORM_BUFFER, FileName, CURLFORM_BUFFERLENGTH, Ptr(Value.Size), _
+		    CURLFORM_BUFFERPTR, Value, CURLFORM_CONTENTTYPE, ContentType)
 		    
 		  Case ContentType = "" And Filename = "" ' string part
-		    Return FormAddPtr(CURLFORM_COPYNAME, n, CURLFORM_BUFFERLENGTH, Ptr(Value.Size), CURLFORM_BUFFERPTR, Value)
+		    Return FormAdd1(CURLFORM_COPYNAME, Name, CURLFORM_BUFFERLENGTH, Ptr(Value.Size), CURLFORM_BUFFERPTR, Value)
 		    
 		  Case ContentType = "" And Filename <> "" ' file part without ContentType
 		    ContentType = MimeType(SpecialFolder.Temporary.Child(Filename))
 		    If ContentType <> "" Then
 		      Return Me.AddElement(Name, Value, Filename, ContentType)
 		    Else
-		      Dim fn As MemoryBlock = Filename + Chr(0)
-		      Return FormAddPtr(CURLFORM_COPYNAME, n, CURLFORM_BUFFER, fn, CURLFORM_BUFFERLENGTH, Ptr(Value.Size), CURLFORM_BUFFERPTR, Value)
+		      Return FormAdd1(CURLFORM_COPYNAME, Name, CURLFORM_BUFFER, Filename, CURLFORM_BUFFERLENGTH, Ptr(Value.Size), CURLFORM_BUFFERPTR, Value)
 		    End If
 		    
 		  Case ContentType <> "" And Filename = "" ' probably erroneous
@@ -100,7 +97,7 @@ Inherits libcURL.cURLHandle
 		  ' http://curl.haxx.se/libcurl/c/curl_formadd.html
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MultipartForm.AddElement
 		  
-		  Return FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_COPYCONTENTS, Value)
+		  Return FormAdd1(CURLFORM_COPYNAME, Name, CURLFORM_COPYCONTENTS, Value)
 		End Function
 	#tag EndMethod
 
@@ -238,6 +235,20 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function FormAdd1(Option As Integer, Value As Variant, Option1 As Integer = CURLFORM_END, Value1 As Variant = Nil, Option2 As Integer = CURLFORM_END, Value2 As Variant = Nil, Option3 As Integer = CURLFORM_END, Value3 As Variant = Nil, Option4 As Integer = CURLFORM_END, Value4 As Variant = Nil, Option5 As Integer = CURLFORM_END, Value5 As Variant = Nil) As Boolean
+		  Dim v, v1, v2, v3, v4, v5 As Ptr
+		  v = MarshalAsPtr(Value)
+		  v1 = MarshalAsPtr(Value1)
+		  v2 = MarshalAsPtr(Value2)
+		  v3 = MarshalAsPtr(Value3)
+		  v4 = MarshalAsPtr(Value4)
+		  v5 = MarshalAsPtr(Value5)
+		  
+		  Return FormAddPtr(Option, v, Option1, v1, Option2, v2, Option3, v3, Option4, v4, Option5, v5)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function FormAddPtr(Option As Integer, Value As Ptr, Option1 As Integer = CURLFORM_END, Value1 As Ptr = Nil, Option2 As Integer = CURLFORM_END, Value2 As Ptr = Nil, Option3 As Integer = CURLFORM_END, Value3 As Ptr = Nil, Option4 As Integer = CURLFORM_END, Value4 As Ptr = Nil, Option5 As Integer = CURLFORM_END, Value5 As Ptr = Nil) As Boolean
 		  mLastError = curl_formadd(mHandle, LastItem, Option, Value, Option1, Value1, Option2, Value2, Option3, Value3, Option4, Value4, Option5, Value5, CURLFORM_END)
 		  Return mLastError = 0
@@ -269,6 +280,54 @@ Inherits libcURL.cURLHandle
 		Exception Err As RuntimeException
 		  If Err IsA ThreadEndException Or Err IsA EndException Then Raise Err
 		  Return 0
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Shared Function MarshalAsPtr(Value As Variant) As Ptr
+		  Dim ValueType As Integer = VarType(Value)
+		  Select Case ValueType
+		    
+		  Case Variant.TypeNil
+		    Return Nil
+		    
+		  Case Variant.TypeBoolean
+		    If Value.BooleanValue Then
+		      Return Ptr(1)
+		    Else
+		      Return Ptr(0)
+		    End If
+		    
+		  Case Variant.TypePtr, Variant.TypeInteger
+		    Return Value.PtrValue
+		    
+		  Case Variant.TypeString
+		    Dim mb As MemoryBlock = Value.CStringValue + Chr(0) ' make doubleplus sure it's null terminated
+		    Return mb
+		    
+		  Case Variant.TypeObject
+		    ' To add support for a custom object type, add a block to this Select statement
+		    Select Case Value
+		    Case IsA MemoryBlock
+		      Return Value.PtrValue
+		      
+		    Case IsA FolderItem
+		      Return MarshalAsPtr(FolderItem(Value).AbsolutePath)
+		      
+		    Case IsA libcURL.HTTPAuthMethods
+		      Dim auth As HTTPAuthMethods = Value
+		      Return MarshalAsPtr(auth.Mask)
+		      
+		    Case IsA libcURL.cURLHandle
+		      Dim cURL As libcURL.cURLHandle = Value
+		      Return MarshalAsPtr(cURL.Handle)
+		      
+		    End Select
+		  End Select
+		  
+		  Dim err As New TypeMismatchException
+		  err.Message = "Value is of unsupported vartype: " + Str(ValueType)
+		  Raise err
 		End Function
 	#tag EndMethod
 
