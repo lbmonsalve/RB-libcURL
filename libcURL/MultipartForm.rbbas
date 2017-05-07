@@ -11,9 +11,9 @@ Inherits libcURL.cURLHandle
 		  If Value.Exists And Not Value.Directory Then
 		    If ContentType = "" Then ContentType = MimeType(Value)
 		    If ContentType <> "" Then
-		      Return FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_FILE, Value.ShellPath, CURLFORM_FILENAME, Value.Name, CURLFORM_CONTENTTYPE, ContentType)
+		      Return FormAdd1(CURLFORM_COPYNAME, Name, CURLFORM_FILE, Value.ShellPath, CURLFORM_FILENAME, Value.Name, CURLFORM_CONTENTTYPE, ContentType)
 		    Else
-		      Return FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_FILE, Value.ShellPath, CURLFORM_FILENAME, Value.Name)
+		      Return FormAdd1(CURLFORM_COPYNAME, Name, CURLFORM_FILE, Value.ShellPath, CURLFORM_FILENAME, Value.Name)
 		    End If
 		  Else
 		    mLastError = libcURL.Errors.INVALID_LOCAL_FILE
@@ -29,26 +29,16 @@ Inherits libcURL.cURLHandle
 		  ' http://curl.haxx.se/libcurl/c/curl_formadd.html
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MultipartForm.AddElement
 		  
-		  Dim n As MemoryBlock = Name + Chr(0)
 		  Dim nameopt As Integer = CURLFORM_END
 		  Dim typeopt As Integer = CURLFORM_END
-		  
-		  Dim fn As MemoryBlock = ""
-		  If Filename.Trim <> "" Then
-		    nameopt = CURLFORM_FILENAME
-		    fn = Filename + Chr(0)
-		  End If
-		  
-		  Dim tn As MemoryBlock = ""
-		  If ContentType.Trim <> "" Then
-		    typeopt = CURLFORM_CONTENTTYPE
-		    tn = ContentType + Chr(0)
-		  End If
+		  If Filename.Trim <> "" Then nameopt = CURLFORM_FILENAME
+		  If ContentType.Trim <> "" Then typeopt = CURLFORM_CONTENTTYPE
 		  
 		  If ValueSize = 0 Then
-		    Return FormAddPtr(CURLFORM_COPYNAME, n, CURLFORM_STREAM, Ptr(ValueCallbackHandler.Handle), nameopt, fn, typeopt, tn)
+		    Return FormAdd1(CURLFORM_COPYNAME, Name, CURLFORM_STREAM, Ptr(ValueCallbackHandler.Handle), nameopt, FileName, typeopt, ContentType)
 		  Else
-		    Return FormAddPtr(CURLFORM_COPYNAME, n, CURLFORM_STREAM, Ptr(ValueCallbackHandler.Handle), CURLFORM_CONTENTSLENGTH, Ptr(ValueSize), nameopt, fn, typeopt, tn)
+		    Return FormAdd1(CURLFORM_COPYNAME, Name, CURLFORM_STREAM, Ptr(ValueCallbackHandler.Handle), CURLFORM_CONTENTSLENGTH, Ptr(ValueSize), _
+		    nameopt, Filename, typeopt, ContentType)
 		  End If
 		End Function
 	#tag EndMethod
@@ -236,7 +226,7 @@ Inherits libcURL.cURLHandle
 
 	#tag Method, Flags = &h1
 		Protected Function FormAdd1(Option As Integer, Value As Variant, Option1 As Integer = CURLFORM_END, Value1 As Variant = Nil, Option2 As Integer = CURLFORM_END, Value2 As Variant = Nil, Option3 As Integer = CURLFORM_END, Value3 As Variant = Nil, Option4 As Integer = CURLFORM_END, Value4 As Variant = Nil, Option5 As Integer = CURLFORM_END, Value5 As Variant = Nil) As Boolean
-		  Dim v, v1, v2, v3, v4, v5 As Ptr
+		  Dim v, v1, v2, v3, v4, v5 As MemoryBlock
 		  v = MarshalAsPtr(Value)
 		  v1 = MarshalAsPtr(Value1)
 		  v2 = MarshalAsPtr(Value2)
@@ -288,21 +278,13 @@ Inherits libcURL.cURLHandle
 		  Dim ValueType As Integer = VarType(Value)
 		  Select Case ValueType
 		    
-		  Case Variant.TypeNil
-		    Return Nil
-		    
-		  Case Variant.TypeBoolean
-		    If Value.BooleanValue Then
-		      Return Ptr(1)
-		    Else
-		      Return Ptr(0)
-		    End If
-		    
-		  Case Variant.TypePtr, Variant.TypeInteger
-		    Return Value.PtrValue
+		  Case Variant.TypePtr
+		    Return Value
 		    
 		  Case Variant.TypeString
-		    Dim mb As MemoryBlock = Value.CStringValue + Chr(0) ' make doubleplus sure it's null terminated
+		    Dim s As String = Value.CStringValue + Chr(0) ' make doubleplus sure it's null terminated
+		    Dim mb As New MemoryBlock(s.LenB)
+		    mb.StringValue(0, mb.Size) = s
 		    Return mb
 		    
 		  Case Variant.TypeObject
@@ -1807,7 +1789,7 @@ Inherits libcURL.cURLHandle
 	#tag Method, Flags = &h0
 		Function Serialize(WriteTo As Writeable) As Boolean
 		  ' Serialize the form and write the output to WriteTo. The serialized form may be used with
-		  ' other HTTP libraries, including the built-in HTTPSocket. If WriteTo is Nil then the 
+		  ' other HTTP libraries, including the built-in HTTPSocket. If WriteTo is Nil then the
 		  ' SerializePart event will be raised in lieu of writing the data to a stream.
 		  '
 		  ' See:
