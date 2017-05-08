@@ -270,6 +270,16 @@ Inherits libcURL.cURLHandle
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function HasElement(Name As String) As Boolean
+		  Dim element As libcURL.MultipartFormElement = Me.FirstElement
+		  Do Until element = Nil
+		    If element.Name = Name Then Return True
+		    element = element.NextElement
+		  Loop
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h1
 		Protected Shared Function MimeType(File As FolderItem) As String
 		  Select Case NthField(File.Name, ".", CountFields(File.Name, "."))
