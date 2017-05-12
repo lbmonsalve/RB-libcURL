@@ -374,6 +374,16 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Attributes( hidden = true )  Shared Function GetHandler(UserData As Integer) As libcURL.EasyHandle
+		  If Instances = Nil Then Return Nil
+		  Dim curl As WeakRef = Instances.Lookup(UserData, Nil)
+		  If curl <> Nil And curl.Value <> Nil And curl.Value IsA EasyHandle Then
+		    Return EasyHandle(curl.Value)
+		  End If
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function GetInfo(InfoType As Integer) As Variant
 		  ' Calls curl_easy_getinfo. Returns a Variant suitable to contain the InfoType requested. If the InfoType is not
 		  ' among the values marshalled below, a TypeMismatchException will be raised.

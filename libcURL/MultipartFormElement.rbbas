@@ -140,6 +140,37 @@ Protected Class MultipartFormElement
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  Return libcURL.EasyHandle.GetHandler(Integer(mStruct.UserData))
+			End Get
+		#tag EndGetter
+		Stream As libcURL.EasyHandle
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Select Case True
+			  Case BitAnd(Me.Flags, CURL_HTTPPOST_PTRBUFFER) = CURL_HTTPPOST_PTRBUFFER
+			    Return ElementType.MemoryBlock
+			    
+			  Case BitAnd(Me.Flags, CURL_HTTPPOST_CALLBACK) = CURL_HTTPPOST_CALLBACK
+			    Return ElementType.Stream
+			    
+			  Case BitAnd(Me.Flags, CURL_HTTPPOST_FILENAME) = CURL_HTTPPOST_FILENAME
+			    Return ElementType.File
+			    
+			  Else
+			    Return ElementType.String
+			    
+			  End Select
+			End Get
+		#tag EndGetter
+		Type As libcURL.MultipartFormElement.ElementType
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  Return mStruct.UserData
 			End Get
 		#tag EndGetter
@@ -170,6 +201,14 @@ Protected Class MultipartFormElement
 
 	#tag Constant, Name = CURL_HTTPPOST_READFILE, Type = Double, Dynamic = False, Default = \"2", Scope = Protected
 	#tag EndConstant
+
+
+	#tag Enum, Name = ElementType, Type = Integer, Flags = &h0
+		MemoryBlock
+		  Stream
+		  String
+		File
+	#tag EndEnum
 
 
 	#tag ViewBehavior
