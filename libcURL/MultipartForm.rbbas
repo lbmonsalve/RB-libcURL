@@ -119,11 +119,14 @@ Inherits libcURL.cURLHandle
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MultipartForm.Count
 		  
-		  Dim p As Ptr = Ptr(Me.Handle)
 		  Dim i As Integer
-		  Do Until p = Nil
+		  Dim List As Ptr = Ptr(Me.Handle)
+		  If List = Nil Then Return 0
+		  
+		  Dim element As New MultipartFormElement(List.curl_httppost, Me)
+		  Do Until element = Nil
 		    i = i + 1
-		    p = p.Ptr(4)
+		    element = element.NextElement
 		  Loop
 		  Return i
 		End Function
@@ -271,10 +274,42 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function HasElement(Name As String) As Boolean
-		  Dim element As libcURL.MultipartFormElement = Me.FirstElement
+		Function GetElement(Index As Integer) As libcURL.MultipartFormElement
+		  Dim List As Ptr = Ptr(Me.Handle)
+		  If List = Nil Then Return Nil
+		  Dim i As Integer
+		  
+		  Dim element As New MultipartFormElement(List.curl_httppost, Me)
 		  Do Until element = Nil
-		    If element.Name = Name Then Return True
+		    If i < Index Then
+		      element = element.NextElement
+		      
+		    ElseIf i = Index Then
+		      Return element
+		      
+		    Else
+		      Dim err As New OutOfBoundsException
+		      err.Message = "Form indices must be greater than or equal to zero."
+		      Raise err
+		    End If
+		    i = i + 1
+		  Loop
+		  
+		  Dim err As New OutOfBoundsException
+		  err.Message = "The form does not contain an element at that index."
+		  Raise err
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function GetElement(Name As String) As libcURL.MultipartFormElement
+		  Dim List As Ptr = Ptr(Me.Handle)
+		  If List = Nil Then Return Nil
+		  
+		  Dim element As New MultipartFormElement(List.curl_httppost, Me)
+		  Do Until element = Nil
+		    If element.Name = Name Then Return element
 		    element = element.NextElement
 		  Loop
 		End Function
@@ -1756,7 +1791,7 @@ Inherits libcURL.cURLHandle
 	#tag Method, Flags = &h0
 		Function Serialize(WriteTo As Writeable) As Boolean
 		  ' Serialize the form and write the output to WriteTo. The serialized form may be used with
-		  ' other HTTP libraries, including the built-in HTTPSocket. If WriteTo is Nil then the 
+		  ' other HTTP libraries, including the built-in HTTPSocket. If WriteTo is Nil then the
 		  ' SerializePart event will be raised in lieu of writing the data to a stream.
 		  '
 		  ' See:
@@ -1811,19 +1846,6 @@ Inherits libcURL.cURLHandle
 		  Call sock.Perform("http://www.example.com/submit.php", 5)
 	#tag EndNote
 
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  Dim List As Ptr = Ptr(Me.Handle)
-			  If List = Nil Then Return Nil
-			  Return New MultipartFormElement(List.curl_httppost, Me)
-			  
-			  
-			End Get
-		#tag EndGetter
-		FirstElement As libcURL.MultipartFormElement
-	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
 		Private Shared FormGetStreams As Dictionary
