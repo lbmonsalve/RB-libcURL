@@ -1,6 +1,7 @@
 #tag Class
 Protected Class EasyHandle
 Inherits libcURL.cURLHandle
+Implements FormContextSetter
 	#tag Method, Flags = &h0
 		Sub ClearFormData()
 		  ' Clears all forms and resets upload options. Can be used to do a "soft" reset even
@@ -644,10 +645,22 @@ Inherits libcURL.cURLHandle
 		  
 		  #pragma X86CallingConvention CDecl
 		  If Instances = Nil Then Return 0
-		  Dim curl As WeakRef = Instances.Lookup(UserData, Nil)
-		  If curl <> Nil And curl.Value <> Nil And curl.Value IsA EasyHandle Then
-		    Return EasyHandle(curl.Value).curlRead(char, size, nmemb)
-		  End If
+		  Dim curl As Variant = Instances.Lookup(UserData, Nil)
+		  Select Case curl
+		  Case IsA WeakRef
+		    Dim w As WeakRef = curl
+		    If w.Value <> Nil And w.Value IsA EasyHandle Then
+		      Return EasyHandle(w.Value).curlRead(char, size, nmemb)
+		    End If
+		    
+		  Case IsA Readable
+		    Dim r As Readable = curl
+		    Dim mb As MemoryBlock = r.Read(size * nmemb)
+		    Dim out As MemoryBlock = char
+		    If mb.Size > 0 Then out.StringValue(0, mb.Size) = mb.StringValue(0, mb.Size)
+		    Return mb.Size
+		    
+		  End Select
 		  
 		  Break ' UserData does not refer to a valid instance!
 		End Function
@@ -726,6 +739,12 @@ Inherits libcURL.cURLHandle
 		  mAuthMethods = NewAuthMask.Mask
 		  Return True
 		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub SetFormContext(ReadFrom As Readable)
+		  Instances.Value(mHandle) = ReadFrom
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
