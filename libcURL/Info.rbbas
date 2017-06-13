@@ -69,7 +69,7 @@ Protected Module Info
 	#tag Constant, Name = PRIMARY_PORT, Type = Double, Dynamic = False, Default = \"2097192", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = PRIVATE_, Type = Double, Dynamic = False, Default = \"1048597", Scope = Protected
+	#tag Constant, Name = PRIVATEPTR, Type = Double, Dynamic = False, Default = \"1048597", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = PROXYAUTH_AVAIL, Type = Double, Dynamic = False, Default = \"2097176", Scope = Protected

@@ -129,6 +129,7 @@ Inherits libcURL.cURLHandle
 		    mUsername = CopyOpts.Username
 		    Me.Verbose = CopyOpts.Verbose
 		    mForm = CopyOpts.mForm
+		    If PrivateTags.HasKey(CopyOpts.Handle) Then PrivateTags.Value(mHandle) = PrivateTags.Value(CopyOpts.Handle)
 		  Else
 		    mLastError = libcURL.Errors.INIT_FAILED
 		    Raise New cURLException(Me)
@@ -337,6 +338,10 @@ Inherits libcURL.cURLHandle
 		    curl_easy_cleanup(mHandle)
 		    Instances.Remove(mHandle)
 		    mErrorBuffer = Nil
+		    If PrivateTags <> Nil And PrivateTags.HasKey(mHandle) Then
+		      PrivateTags.Remove(mHandle)
+		      If PrivateTags.Count = 0 Then PrivateTags = Nil
+		    End If
 		  End If
 		  mConnectionCount = 0
 		  mHandle = 0
@@ -387,7 +392,7 @@ Inherits libcURL.cURLHandle
 		  Dim mb As MemoryBlock
 		  
 		  Select Case InfoType
-		  Case libcURL.Info.EFFECTIVE_URL, libcURL.Info.REDIRECT_URL, libcURL.Info.CONTENT_TYPE, libcURL.Info.PRIVATE_, libcURL.Info.PRIMARY_IP, _
+		  Case libcURL.Info.EFFECTIVE_URL, libcURL.Info.REDIRECT_URL, libcURL.Info.CONTENT_TYPE, libcURL.Info.PRIMARY_IP, _
 		    libcURL.Info.LOCAL_IP, libcURL.Info.FTP_ENTRY_PATH, libcURL.Info.RTSP_SESSION_ID
 		    mb = New MemoryBlock(4)
 		    If Me.GetInfo(InfoType, mb) Then
@@ -398,7 +403,7 @@ Inherits libcURL.cURLHandle
 		  Case libcURL.Info.RESPONSE_CODE, libcURL.Info.HTTP_CONNECTCODE, libcURL.Info.FILETIME, libcURL.Info.REDIRECT_COUNT, libcURL.Info.HEADER_SIZE, _
 		    libcURL.Info.REQUEST_SIZE, libcURL.Info.SSL_VERIFYRESULT, libcURL.Info.OS_ERRNO, _
 		    libcURL.Info.NUM_CONNECTS, libcURL.Info.PRIMARY_PORT, libcURL.Info.LOCAL_PORT, libcURL.Info.LASTSOCKET, libcURL.Info.CONDITION_UNMET, _
-		    libcURL.Info.RTSP_CLIENT_CSEQ, libcURL.Info.RTSP_SERVER_CSEQ, libcURL.Info.RTSP_CSEQ_RECV
+		    libcURL.Info.RTSP_CLIENT_CSEQ, libcURL.Info.RTSP_SERVER_CSEQ, libcURL.Info.RTSP_CSEQ_RECV, libcURL.Info.PRIVATEPTR
 		    mb = New MemoryBlock(4)
 		    If Me.GetInfo(InfoType, mb) Then Return mb.Int32Value(0)
 		    
@@ -1557,6 +1562,10 @@ Inherits libcURL.cURLHandle
 		Port As Integer
 	#tag EndComputedProperty
 
+	#tag Property, Flags = &h1
+		Protected Shared PrivateTags As Dictionary
+	#tag EndProperty
+
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
@@ -1626,6 +1635,29 @@ Inherits libcURL.cURLHandle
 			End Set
 		#tag EndSetter
 		SSLVersion As libcURL.SSLVersion
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If PrivateTags = Nil Then PrivateTags = New Dictionary
+			  Dim key As Integer = Me.GetInfo(libcURL.Info.PRIVATEPTR)
+			  Return PrivateTags.Lookup(key, Nil)
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If PrivateTags = Nil Then PrivateTags = New Dictionary
+			  If Not SetOption(libcURL.Opts.PRIVATEPTR, mHandle) Then Raise New cURLException(Me)
+			  If value <> Nil Then
+			    PrivateTags.Value(mHandle) = value
+			  ElseIf PrivateTags.HasKey(mHandle) Then
+			    PrivateTags.Remove(mHandle)
+			    If PrivateTags.Count = 0 Then PrivateTags = Nil
+			  End If
+			End Set
+		#tag EndSetter
+		Tag As Variant
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
