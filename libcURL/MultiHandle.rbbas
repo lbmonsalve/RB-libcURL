@@ -2,7 +2,7 @@
 Protected Class MultiHandle
 Inherits libcURL.cURLHandle
 	#tag Method, Flags = &h0
-		Function AddItem(Item As libcURL.EasyHandle) As Boolean
+		Sub AddItem(Item As libcURL.EasyHandle)
 		  ' Add a EasyHandle to the multistack. The EasyHandle should have all of its options already set and ready to go.
 		  ' A EasyHandle may belong to only one MultiHandle object at a time. Passing an owned EasyHandle will fail.
 		  '
@@ -17,10 +17,15 @@ Inherits libcURL.cURLHandle
 		    
 		  Else
 		    mLastError = curl_multi_add_handle(mHandle, Item.Handle)
-		    If mLastError = 0 Then Instances.Value(Item.Handle) = Item
+		    
 		  End If
-		  Return mLastError = 0
-		End Function
+		  
+		  If mLastError = 0 Then
+		    Instances.Value(Item.Handle) = Item
+		  Else
+		    Raise New cURLException(Me)
+		  End If
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0

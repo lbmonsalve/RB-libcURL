@@ -256,7 +256,7 @@ Protected Class cURLManager
 
 	#tag Method, Flags = &h21
 		Private Sub QueueTransfer(URL As String, ReadFrom As Readable, WriteTo As Writeable)
-		  If Not mMultiItem.AddItem(mEasyItem) Then Raise New cURLException(mMultiItem)
+		  mMultiItem.AddItem(mEasyItem)
 		  
 		  mIsTransferComplete = False
 		  mAbort = False
