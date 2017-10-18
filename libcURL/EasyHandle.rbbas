@@ -23,7 +23,7 @@ Inherits libcURL.cURLHandle
 
 	#tag Method, Flags = &h0
 		Attributes( deprecated = "libcURL.CookieEngine.NewSession" )  Sub ClearSessionCookies()
-		  If Not Me.CookieEngine.NewSession Then Raise New cURLException(Me)
+		  Me.CookieEngine.NewSession
 		End Sub
 	#tag EndMethod
 
@@ -546,7 +546,7 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Pause(Mask As Integer = CURLPAUSE_ALL) As Boolean
+		Sub Pause(Mask As Integer = CURLPAUSE_ALL)
 		  ' Pauses or unpauses uploads and/or downloads
 		  ' See:
 		  ' http://curl.haxx.se/libcurl/c/curl_easy_pause.html
@@ -557,8 +557,8 @@ Inherits libcURL.cURLHandle
 		  Else
 		    mLastError = libcURL.Errors.FEATURE_UNAVAILABLE
 		  End If
-		  Return mLastError = 0
-		End Function
+		  If mLastError <> 0 Then Raise New cURLException(Me)
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -689,14 +689,14 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Resume(Mask As Integer = CURLPAUSE_CONT) As Boolean
+		Sub Resume(Mask As Integer = CURLPAUSE_CONT)
 		  ' Resumes uploads and/or downloads
 		  ' See:
 		  ' http://curl.haxx.se/libcurl/c/curl_easy_pause.html
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.EasyHandle.Resume
 		  
-		  Return Me.Pause(mask)
-		End Function
+		  Me.Pause(mask)
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
@@ -715,17 +715,16 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function SetAuthMethods(NewAuthMask As libcURL.HTTPAuthMethods) As Boolean
+		Sub SetAuthMethods(NewAuthMask As libcURL.HTTPAuthMethods)
 		  ' Sets the available/allowed HTTP authentication methods.
 		  '
 		  ' See:
 		  ' http://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.EasyHandle.SetAuthMethods
 		  
-		  If Not Me.SetOption(libcURL.Opts.HTTPAUTH, NewAuthMask) Then Return False
+		  If Not Me.SetOption(libcURL.Opts.HTTPAUTH, NewAuthMask) Then Raise New cURLException(Me)
 		  mAuthMethods = NewAuthMask.Mask
-		  Return True
-		End Function
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0

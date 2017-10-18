@@ -322,7 +322,11 @@ Protected Module libcURL
 		    Case arg = "--basic"
 		      Dim ha As libcURL.HTTPAuthMethods = 0
 		      ha.SetOnly(CURLAUTH.BASIC)
-		      If Not Client.EasyItem.SetAuthMethods(ha) Then GoTo ParseError
+		      Try
+		        Client.EasyItem.SetAuthMethods(ha)
+		      Catch
+		        GoTo ParseError
+		      End Try
 		      
 		    Case arg = "--cookie", StrComp("-b", arg, 1) = 0
 		      If Not Client.Cookies.Enabled Then Client.Cookies.Enabled = True
@@ -416,7 +420,11 @@ Protected Module libcURL
 		    Case arg = "--digest"
 		      Dim ha As libcURL.HTTPAuthMethods = 0
 		      ha.SetOnly(CURLAUTH.DIGEST)
-		      If Not Client.EasyItem.SetAuthMethods(ha) Then GoTo ParseError
+		      Try
+		        Client.EasyItem.SetAuthMethods(ha)
+		      Catch
+		        GoTo ParseError
+		      End Try
 		      
 		    Case arg = "--ftp-create-dirs"
 		      If Not Client.SetOption(libcURL.Opts.FTP_CREATE_MISSING_DIRS, True) Then GoTo ParseError
@@ -521,7 +529,11 @@ Protected Module libcURL
 		    Case arg = "--negotiate"
 		      Dim ha As libcURL.HTTPAuthMethods = 0
 		      ha.SetOnly(CURLAUTH.NEGOTIATE)
-		      If Not Client.EasyItem.SetAuthMethods(ha) Then GoTo ParseError
+		      Try
+		        Client.EasyItem.SetAuthMethods(ha)
+		      Catch
+		        GoTo ParseError
+		      End Try
 		      
 		    Case arg = "--no-alpn"
 		      If Not Client.SetOption(libcURL.Opts.SSL_ENABLE_ALPN, False) Then GoTo ParseError
@@ -553,12 +565,20 @@ Protected Module libcURL
 		    Case arg = "--ntlm"
 		      Dim ha As libcURL.HTTPAuthMethods = 0
 		      ha.SetOnly(CURLAUTH.NTLM)
-		      If Not Client.EasyItem.SetAuthMethods(ha) Then GoTo ParseError
+		      Try
+		        Client.EasyItem.SetAuthMethods(ha)
+		      Catch
+		        GoTo ParseError
+		      End Try
 		      
 		    Case arg = "--ntlm-wb"
 		      Dim ha As libcURL.HTTPAuthMethods = 0
 		      ha.SetOnly(CURLAUTH.NTLM_WB)
-		      If Not Client.EasyItem.SetAuthMethods(ha) Then GoTo ParseError
+		      Try
+		        Client.EasyItem.SetAuthMethods(ha)
+		      Catch
+		        GoTo ParseError
+		      End Try
 		      
 		    Case arg = "--proxy", StrComp("-x", arg, 1) = 0
 		      Client.Proxy.Address = output(i + 1)
