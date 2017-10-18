@@ -46,7 +46,7 @@ Protected Class ProxyEngine
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function IncludeHost(Hostname As String) As Boolean
+		Sub IncludeHost(Hostname As String)
 		  ' Removes the specified Hostname from the proxy exclusion list. By default, all hosts are proxied,
 		  ' so you needn't call this method unless you have previously excluded the Hostname. Specify the
 		  ' hostname only; i.e. if the URL is "http://www.example.com" then "www.example.com" is the Hostname.
@@ -58,8 +58,8 @@ Protected Class ProxyEngine
 		  For i As Integer = UBound(mExclusions) DownTo 0
 		    If CompareDomains(mExclusions(i), Hostname) Then mExclusions.Remove(i)
 		  Next
-		  Return Owner.SetOption(libcURL.Opts.NOPROXY, Join(mExclusions, ","))
-		End Function
+		  If Not Owner.SetOption(libcURL.Opts.NOPROXY, Join(mExclusions, ",")) Then Raise New cURLException(Owner)
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
