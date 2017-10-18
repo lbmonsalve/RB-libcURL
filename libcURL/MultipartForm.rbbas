@@ -3,7 +3,7 @@ Protected Class MultipartForm
 Inherits libcURL.cURLHandle
 Implements FormStreamGetter
 	#tag Method, Flags = &h0
-		Function AddElement(Name As String, Value As FolderItem, ContentType As String = "", AdditionalHeaders As libcURL.ListPtr = Nil) As Boolean
+		Sub AddElement(Name As String, Value As FolderItem, ContentType As String = "", AdditionalHeaders As libcURL.ListPtr = Nil)
 		  ' Adds the passed file to the form using the specified name.
 		  ' See:
 		  ' http://curl.haxx.se/libcurl/c/curl_formadd.html
@@ -11,7 +11,7 @@ Implements FormStreamGetter
 		  
 		  If Not Value.Exists Or Value.Directory Then
 		    mLastError = libcURL.Errors.INVALID_LOCAL_FILE
-		    Return False
+		    Raise New cURLException(Me)
 		  End If
 		  
 		  If ContentType = "" Then ContentType = MimeType(Value)
@@ -21,16 +21,16 @@ Implements FormStreamGetter
 		    If mAdditionalHeaders.IndexOf(AdditionalHeaders) = -1 Then mAdditionalHeaders.Append(AdditionalHeaders)
 		  End If
 		  If ContentType <> "" Then
-		    Return FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_FILE, Value.ShellPath, CURLFORM_FILENAME, Value.Name, CURLFORM_CONTENTTYPE, ContentType, headeropt, AdditionalHeaders)
+		    FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_FILE, Value.ShellPath, CURLFORM_FILENAME, Value.Name, CURLFORM_CONTENTTYPE, ContentType, headeropt, AdditionalHeaders)
 		  Else
-		    Return FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_FILE, Value.ShellPath, CURLFORM_FILENAME, Value.Name, headeropt, AdditionalHeaders)
+		    FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_FILE, Value.ShellPath, CURLFORM_FILENAME, Value.Name, headeropt, AdditionalHeaders)
 		  End If
 		  
-		End Function
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function AddElement(Name As String, ByRef Value As MemoryBlock, Filename As String, ContentType As String = "", AdditionalHeaders As libcURL.ListPtr = Nil) As Boolean
+		Sub AddElement(Name As String, ByRef Value As MemoryBlock, Filename As String, ContentType As String = "", AdditionalHeaders As libcURL.ListPtr = Nil)
 		  ' Adds the passed buffer to the form as a file part using the specified name. The buffer pointed to by Value
 		  ' is used directly (i.e. not copied) so it must continue to exist until after the POST request has completed.
 		  ' This method allows file parts to be added without using an actual file. Specify an empty Filename parameter
@@ -67,12 +67,12 @@ Implements FormStreamGetter
 		    If mAdditionalHeaders.IndexOf(AdditionalHeaders) = -1 Then mAdditionalHeaders.Append(AdditionalHeaders)
 		  End If
 		  
-		  Return FormAdd(o, v)
-		End Function
+		  FormAdd(o, v)
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function AddElement(Name As String, ValueStream As Readable, ValueSize As Integer, Filename As String = "", ContentType As String = "", AdditionalHeaders As libcURL.ListPtr = Nil) As Boolean
+		Sub AddElement(Name As String, ValueStream As Readable, ValueSize As Integer, Filename As String = "", ContentType As String = "", AdditionalHeaders As libcURL.ListPtr = Nil)
 		  ' Adds an element using the specified name, with contents which will be read from the passed Readable object.
 		  ' See:
 		  ' http://curl.haxx.se/libcurl/c/curl_formadd.html
@@ -111,12 +111,12 @@ Implements FormStreamGetter
 		    v.Append(ValueSize)
 		  End If
 		  
-		  Return FormAdd(o, v)
-		End Function
+		  FormAdd(o, v)
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function AddElement(Name As String, Value As String, AdditionalHeaders As libcURL.ListPtr = Nil) As Boolean
+		Sub AddElement(Name As String, Value As String, AdditionalHeaders As libcURL.ListPtr = Nil)
 		  ' Adds the passed Value to the form using the specified name.
 		  ' See:
 		  ' http://curl.haxx.se/libcurl/c/curl_formadd.html
@@ -124,11 +124,11 @@ Implements FormStreamGetter
 		  
 		  If AdditionalHeaders <> Nil Then
 		    If mAdditionalHeaders.IndexOf(AdditionalHeaders) = -1 Then mAdditionalHeaders.Append(AdditionalHeaders)
-		    Return FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_COPYCONTENTS, Value, CURLFORM_CONTENTHEADER, AdditionalHeaders)
+		    FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_COPYCONTENTS, Value, CURLFORM_CONTENTHEADER, AdditionalHeaders)
 		  Else
-		    Return FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_COPYCONTENTS, Value)
+		    FormAdd(CURLFORM_COPYNAME, Name, CURLFORM_COPYCONTENTS, Value)
 		  End If
-		End Function
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -190,7 +190,7 @@ Implements FormStreamGetter
 		    name = ReplaceAll(name, """", "")
 		    If name.Trim = "" Then Continue For i
 		    If CountFields(line, ";") < 3 Then 'form field
-		      If Not form.AddElement(name, NthField(elements(i), EndOfLine.Windows + EndOfLine.Windows, 2)) Then Raise New cURLException(form)
+		      form.AddElement(name, NthField(elements(i), EndOfLine.Windows + EndOfLine.Windows, 2))
 		    Else 'file field
 		      Dim filename As String = NthField(line, ";", 3)
 		      filename = NthField(filename, "=", 2)
@@ -202,7 +202,7 @@ Implements FormStreamGetter
 		      filedata = filedata.StringValue(t, filedata.Size - t - 2)
 		      bs.Write(filedata)
 		      bs.Close
-		      If Not form.AddElement(name, tmp) Then Raise New cURLException(form)
+		      form.AddElement(name, tmp)
 		    End If
 		  Next
 		  
@@ -222,38 +222,38 @@ Implements FormStreamGetter
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function FormAdd(Options() As Integer, Values() As Variant) As Boolean
+		Protected Sub FormAdd(Options() As Integer, Values() As Variant)
 		  If UBound(Options) <> UBound(Values) Then Raise New OutOfBoundsException
 		  
 		  Select Case UBound(Options)
 		  Case 1
-		    Return FormAdd(Options(0), Values(0), Options(1), Values(1))
+		    FormAdd(Options(0), Values(0), Options(1), Values(1))
 		  Case 2
-		    Return FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2))
+		    FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2))
 		  Case 3
-		    Return FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3))
+		    FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3))
 		  Case 4
-		    Return FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4))
+		    FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4))
 		  Case 5
-		    Return FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5))
+		    FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5))
 		  Case 6
-		    Return FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5), Options(6), Values(6))
+		    FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5), Options(6), Values(6))
 		  Case 7
-		    Return FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5), Options(6), Values(6), Options(7), Values(7))
+		    FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5), Options(6), Values(6), Options(7), Values(7))
 		  Case 8
-		    Return FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5), Options(6), Values(6), Options(7), Values(7), Options(8), Values(8))
+		    FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5), Options(6), Values(6), Options(7), Values(7), Options(8), Values(8))
 		  Case 9
-		    Return FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5), Options(6), Values(6), Options(7), Values(7), Options(8), Values(8), Options(9), Values(9))
+		    FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5), Options(6), Values(6), Options(7), Values(7), Options(8), Values(8), Options(9), Values(9))
 		  Case 10
-		    Return FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5), Options(6), Values(6), Options(7), Values(7), Options(8), Values(8), Options(9), Values(9), Options(10), Values(10))
+		    FormAdd(Options(0), Values(0), Options(1), Values(1), Options(2), Values(2), Options(3), Values(3), Options(4), Values(4), Options(5), Values(5), Options(6), Values(6), Options(7), Values(7), Options(8), Values(8), Options(9), Values(9), Options(10), Values(10))
 		  Else
 		    Raise New OutOfBoundsException
 		  End Select
-		End Function
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function FormAdd(Option As Integer, Value As Variant, Option1 As Integer = CURLFORM_END, Value1 As Variant = Nil, Option2 As Integer = CURLFORM_END, Value2 As Variant = Nil, Option3 As Integer = CURLFORM_END, Value3 As Variant = Nil, Option4 As Integer = CURLFORM_END, Value4 As Variant = Nil, Option5 As Integer = CURLFORM_END, Value5 As Variant = Nil, Option6 As Integer = CURLFORM_END, Value6 As Variant = Nil, Option7 As Integer = CURLFORM_END, Value7 As Variant = Nil, Option8 As Integer = CURLFORM_END, Value8 As Variant = Nil, Option9 As Integer = CURLFORM_END, Value9 As Variant = Nil, Option10 As Integer = CURLFORM_END, Value10 As Variant = Nil) As Boolean
+		Sub FormAdd(Option As Integer, Value As Variant, Option1 As Integer = CURLFORM_END, Value1 As Variant = Nil, Option2 As Integer = CURLFORM_END, Value2 As Variant = Nil, Option3 As Integer = CURLFORM_END, Value3 As Variant = Nil, Option4 As Integer = CURLFORM_END, Value4 As Variant = Nil, Option5 As Integer = CURLFORM_END, Value5 As Variant = Nil, Option6 As Integer = CURLFORM_END, Value6 As Variant = Nil, Option7 As Integer = CURLFORM_END, Value7 As Variant = Nil, Option8 As Integer = CURLFORM_END, Value8 As Variant = Nil, Option9 As Integer = CURLFORM_END, Value9 As Variant = Nil, Option10 As Integer = CURLFORM_END, Value10 As Variant = Nil)
 		  ' This helper function is a wrapper for the variadic external method curl_formadd. Since external methods
 		  ' can't be variadic, this method simulates it by accepting a finite number of optional arguments.
 		  '
@@ -305,18 +305,18 @@ Implements FormStreamGetter
 		    End Select
 		  Next
 		  
-		  Return FormAddPtr(o(0), m(0), o(1), m(1), o(2), m(2), o(3), m(3), o(4), m(4), o(5), m(5), o(6), m(6), o(7), m(7), o(8), m(8), o(9), m(9), o(10), m(10))
-		End Function
+		  FormAddPtr(o(0), m(0), o(1), m(1), o(2), m(2), o(3), m(3), o(4), m(4), o(5), m(5), o(6), m(6), o(7), m(7), o(8), m(8), o(9), m(9), o(10), m(10))
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function FormAddPtr(Option As Integer, Value As Ptr, Option1 As Integer = CURLFORM_END, Value1 As Ptr = Nil, Option2 As Integer = CURLFORM_END, Value2 As Ptr = Nil, Option3 As Integer = CURLFORM_END, Value3 As Ptr = Nil, Option4 As Integer = CURLFORM_END, Value4 As Ptr = Nil, Option5 As Integer = CURLFORM_END, Value5 As Ptr = Nil, Option6 As Integer = CURLFORM_END, Value6 As Ptr = Nil, Option7 As Integer = CURLFORM_END, Value7 As Ptr = Nil, Option8 As Integer = CURLFORM_END, Value8 As Ptr = Nil, Option9 As Integer = CURLFORM_END, Value9 As Ptr = Nil, Option10 As Integer = CURLFORM_END, Value10 As Ptr = Nil) As Boolean
+		Protected Sub FormAddPtr(Option As Integer, Value As Ptr, Option1 As Integer = CURLFORM_END, Value1 As Ptr = Nil, Option2 As Integer = CURLFORM_END, Value2 As Ptr = Nil, Option3 As Integer = CURLFORM_END, Value3 As Ptr = Nil, Option4 As Integer = CURLFORM_END, Value4 As Ptr = Nil, Option5 As Integer = CURLFORM_END, Value5 As Ptr = Nil, Option6 As Integer = CURLFORM_END, Value6 As Ptr = Nil, Option7 As Integer = CURLFORM_END, Value7 As Ptr = Nil, Option8 As Integer = CURLFORM_END, Value8 As Ptr = Nil, Option9 As Integer = CURLFORM_END, Value9 As Ptr = Nil, Option10 As Integer = CURLFORM_END, Value10 As Ptr = Nil)
 		  mLastError = curl_formadd(mHandle, LastItem, Option, Value, Option1, Value1, _
 		  Option2, Value2, Option3, Value3, Option4, Value4, Option5, Value5, Option6, _
-		   Value6, Option7, Value7, Option8, Value8, Option9, Value9, Option10, Value10, CURLFORM_END)
+		  Value6, Option7, Value7, Option8, Value8, Option9, Value9, Option10, Value10, CURLFORM_END)
 		  
-		  Return mLastError = 0
-		End Function
+		  If mLastError <> 0 Then Raise New cURLException(Me)
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
@@ -1874,17 +1874,17 @@ Implements FormStreamGetter
 		    Dim value As Variant = FromDict.Value(item)
 		    Select Case True
 		    Case VarType(value) = Variant.TypeString
-		      If Not Me.AddElement(item, value.StringValue) Then Raise New cURLException(Me)
+		      Me.AddElement(item, value.StringValue)
 		      
 		    Case value IsA FolderItem
-		      If Not Me.AddElement(item, FolderItem(value)) Then Raise New cURLException(Me)
+		      Me.AddElement(item, FolderItem(value))
 		      
 		    Case value IsA Readable ' rtfm about CURLFORM_STREAM before using this
-		      If Not Me.AddElement(item, Readable(value), 0) Then Raise New cURLException(Me)
+		      Me.AddElement(item, Readable(value), 0)
 		      
 		    Case value IsA MemoryBlock
 		      Dim mb As MemoryBlock = Value
-		      If Not Me.AddElement(item, mb, "") Then Raise New cURLException(Me)
+		      Me.AddElement(item, mb, "")
 		      
 		    Else
 		      Raise New UnsupportedFormatException

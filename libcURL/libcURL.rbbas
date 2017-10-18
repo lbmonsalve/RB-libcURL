@@ -407,13 +407,21 @@ Protected Module libcURL
 		        Dim f As FolderItem = GetFolderItem(Right(value, value.Len - 1))
 		        If f <> Nil And f.Exists And Not f.Directory Then
 		          If frm = Nil Then frm = New libcURL.MultipartForm
-		          If Not frm.AddElement(name, f, type) Then GoTo ParseError
+		          Try
+		            frm.AddElement(name, f, type)
+		          Catch
+		            GoTo ParseError
+		          End Try
 		        Else
 		          GoTo ParseError
 		        End If
 		      Else
 		        If frm = Nil Then frm = New libcURL.MultipartForm
-		        If Not frm.AddElement(name, value) Then GoTo ParseError
+		        Try
+		          frm.AddElement(name, value)
+		        Catch
+		          GoTo ParseError
+		        End Try
 		      End If
 		      i = i + 1
 		      
