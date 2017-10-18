@@ -2,21 +2,16 @@
 Protected Class ShareHandle
 Inherits libcURL.cURLHandle
 	#tag Method, Flags = &h0
-		Function AddItem(Item As libcURL.EasyHandle) As Boolean
+		Sub AddItem(Item As libcURL.EasyHandle)
 		  ' Add an easy handle to share handle
 		  '
 		  ' See:
 		  ' http://curl.haxx.se/libcurl/c/CURLOPT_SHARE.html
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.ShareHandle.AddItem
 		  
-		  If Not SharedHandles.HasKey(Item.Handle) And Item.SetOption(libcURL.Opts.SHARE, Me) Then
-		    SharedHandles.Value(Item.Handle) = Item
-		    Return True
-		  Else
-		    mLastError = Item.LastError
-		    Return False
-		  End If
-		End Function
+		  If SharedHandles.HasKey(Item.Handle) Then Return
+		  If Not Item.SetOption(libcURL.Opts.SHARE, Me) Then Raise New cURLException(Item)
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -125,7 +120,7 @@ Inherits libcURL.cURLHandle
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  Me.Close
-		  If mHandle <> 0 Then 
+		  If mHandle <> 0 Then
 		    mLastError = curl_share_cleanup(mHandle)
 		    If mLastError = 0 Then
 		      If Instances <> Nil And Instances.HasKey(mHandle) Then Instances.Remove(mHandle)
@@ -159,19 +154,21 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function RemoveItem(Item As libcURL.EasyHandle) As Boolean
+		Sub RemoveItem(Item As libcURL.EasyHandle)
 		  ' Remove an easy handle from share handle.
 		  '
-		  ' See: 
+		  ' See:
 		  ' http://curl.haxx.se/libcurl/c/CURLOPT_SHARE.html
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.ShareHandle.RemoveItem
 		  
-		  If SharedHandles.HasKey(Item.Handle) And Item.SetOption(libcURL.Opts.SHARE, Nil) Then
+		  If Not SharedHandles.HasKey(Item.Handle) Then Return
+		  If Item.SetOption(libcURL.Opts.SHARE, Nil) Then 
 		    SharedHandles.Remove(Item.Handle)
-		    Return True
+		  Else
+		    Raise New cURLException(Item)
 		  End If
 		  
-		End Function
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
