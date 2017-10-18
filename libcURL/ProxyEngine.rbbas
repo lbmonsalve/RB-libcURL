@@ -15,7 +15,7 @@ Protected Class ProxyEngine
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function ExcludeHost(Hostname As String) As Boolean
+		Sub ExcludeHost(Hostname As String)
 		  ' Exclude the specified Hostname from proxying. By default, all hosts are proxied.
 		  ' Specify the hostname only; i.e. if the URL is "http://www.example.com" then "www.example.com"
 		  ' is the Hostname.
@@ -25,11 +25,11 @@ Protected Class ProxyEngine
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.ProxyEngine.ExcludeHost
 		  
 		  For i As Integer = 0 To UBound(mExclusions)
-		    If CompareDomains(mExclusions(i), Hostname) Then Return True
+		    If CompareDomains(mExclusions(i), Hostname) Then Return
 		  Next
 		  mExclusions.Append(Hostname)
-		  Return Owner.SetOption(libcURL.Opts.NOPROXY, Join(mExclusions, ","))
-		End Function
+		  If Not Owner.SetOption(libcURL.Opts.NOPROXY, Join(mExclusions, ",")) Then Raise New cURLException(Owner)
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0

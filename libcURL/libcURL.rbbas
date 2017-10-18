@@ -531,7 +531,11 @@ Protected Module libcURL
 		      
 		    Case arg = "--noproxy"
 		      For Each host As String In Split(output(i + 1), ",")
-		        If Not Client.Proxy.ExcludeHost(host) Then GoTo ParseError
+		        Try
+		          Client.Proxy.ExcludeHost(host)
+		        Catch
+		          GoTo ParseError
+		        End Try
 		      Next
 		      i = i + 1
 		      
