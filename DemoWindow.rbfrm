@@ -3391,7 +3391,7 @@ End
 #tag Events NewCookieSessionButton
 	#tag Event
 		Sub Action()
-		  If Not Client.Cookies.NewSession Then Raise New libcURL.cURLException(Client.EasyItem)
+		  Client.Cookies.NewSession
 		  UpdateCookieList()
 		End Sub
 	#tag EndEvent
@@ -3736,10 +3736,12 @@ End
 	#tag Event
 		Sub Action()
 		  If Me.Caption = "Pause" Then
-		    If Client.EasyItem.Pause Then Me.Caption = "Resume"
+		    Client.EasyItem.Pause
+		    Me.Caption = "Resume"
 		    
 		  Else
-		    If Client.EasyItem.Resume Then Me.Caption = "Pause"
+		    Client.EasyItem.Resume
+		    Me.Caption = "Pause"
 		  End If
 		End Sub
 	#tag EndEvent
