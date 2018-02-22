@@ -2,7 +2,7 @@
 Protected Class ShareHandle
 Inherits libcURL.cURLHandle
 	#tag Method, Flags = &h0
-		Function AddItem(Item As libcURL.EasyHandle) As Boolean
+		Function AddHandle(Item As libcURL.EasyHandle) As Boolean
 		  ' Add an easy handle to share handle
 		  '
 		  ' See:
@@ -16,6 +16,12 @@ Inherits libcURL.cURLHandle
 		    mLastError = Item.LastError
 		    Return False
 		  End If
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Attributes( deprecated = "ShareHandle.AddHandle" )  Function AddItem(Item As libcURL.EasyHandle) As Boolean
+		  Return Me.AddHandle(Item)
 		End Function
 	#tag EndMethod
 
@@ -73,8 +79,14 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function HasItem(EasyItem As libcURL.EasyHandle) As Boolean
+		Function HasHandle(EasyItem As libcURL.EasyHandle) As Boolean
 		  Return SharedHandles.HasKey(EasyItem.Handle)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Attributes( deprecated = "ShareHandle.HasHandle" )  Function HasItem(EasyItem As libcURL.EasyHandle) As Boolean
+		  Return Me.HasHandle(EasyItem)
 		End Function
 	#tag EndMethod
 
@@ -93,7 +105,7 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function RemoveItem(Item As libcURL.EasyHandle) As Boolean
+		Function RemoveHandle(Item As libcURL.EasyHandle) As Boolean
 		  ' Remove an easy handle from share handle.
 		  '
 		  ' See: 
@@ -105,6 +117,12 @@ Inherits libcURL.cURLHandle
 		    Return True
 		  End If
 		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Attributes( deprecated = "ShareHandle.RemoveHandle" )  Function RemoveItem(Item As libcURL.EasyHandle) As Boolean
+		  Return Me.RemoveHandle(Item)
 		End Function
 	#tag EndMethod
 
@@ -205,7 +223,6 @@ Inherits libcURL.cURLHandle
 		This class wraps the curl_share API. EasyHandles that are added to a ShareHandle instance may share SSL session data, 
 		DNS caches, connection pools, and/or HTTP cookies. By default nothing is shared. You must enable the share options 
 		you want before adding any EasyHandles to the share. Doing so after will raise an error (CURLSHE_IN_USE (2))
-		
 	#tag EndNote
 
 

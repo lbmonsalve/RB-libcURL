@@ -2313,7 +2313,7 @@ End
 	#tag Event
 		Sub Open()
 		  Me.Title = Me.Title + " - " + libcURL.Version.UserAgent
-		  Client.EasyItem.UseErrorBuffer = True
+		  Client.EasyHandle.UseErrorBuffer = True
 		End Sub
 	#tag EndEvent
 
@@ -2422,7 +2422,7 @@ End
 		  Else
 		    MsgBox("Transfer completed (" + Str(BytesWritten) + " bytes written, " + Str(BytesRead) +" bytes read) with status: " + Str(Client.GetStatusCode))
 		  End If
-		  CurlInfo.AddRow("EFFECTIVE_URL", Client.EasyItem.URL)
+		  CurlInfo.AddRow("EFFECTIVE_URL", Client.EasyHandle.URL)
 		  If Client.GetInfo(libcURL.Info.REDIRECT_COUNT).Int32Value > 0 Then
 		    CurlInfo.AddRow("REDIRECT_COUNT", Str(Client.GetInfo(libcURL.Info.REDIRECT_COUNT).Int32Value))
 		  End If
@@ -2453,7 +2453,7 @@ End
 		    Next
 		  End If
 		  UpdateCookieList()
-		  Select Case Client.EasyItem.HTTPVersion
+		  Select Case Client.EasyHandle.HTTPVersion
 		  Case libcURL.HTTPVersion.HTTP1_1
 		    HTTPVer.ListIndex = 0
 		  Case libcURL.HTTPVersion.HTTP1_0
@@ -2462,7 +2462,7 @@ End
 		    HTTPVer.ListIndex = 2
 		  End Select
 		  
-		  Select Case Client.EasyItem.SSLVersion
+		  Select Case Client.EasyHandle.SSLVersion
 		  Case libcURL.SSLVersion.Default
 		    SSLVer.ListIndex = 0
 		  Case libcURL.SSLVersion.TLSv1
@@ -2488,16 +2488,16 @@ End
 		Private Sub ResetUI()
 		  mLockUI = True
 		  Try
-		    AutoDisconnect.Value = Client.EasyItem.AutoDisconnect
-		    Autoreferer.Value = Client.EasyItem.AutoReferer
-		    FailOnError.Value = Client.EasyItem.FailOnServerError
-		    FollowRedirects.Value = Client.EasyItem.FollowRedirects
-		    HTTPCompress.Value = Client.EasyItem.HTTPCompression
-		    HTTPPreserveMethod.Value = Client.EasyItem.HTTPPreserveMethod
-		    NoProgress.Value = Client.EasyItem.UseProgressEvent
-		    Secure.Value = Client.EasyItem.Secure
+		    AutoDisconnect.Value = Client.EasyHandle.AutoDisconnect
+		    Autoreferer.Value = Client.EasyHandle.AutoReferer
+		    FailOnError.Value = Client.EasyHandle.FailOnServerError
+		    FollowRedirects.Value = Client.EasyHandle.FollowRedirects
+		    HTTPCompress.Value = Client.EasyHandle.HTTPCompression
+		    HTTPPreserveMethod.Value = Client.EasyHandle.HTTPPreserveMethod
+		    NoProgress.Value = Client.EasyHandle.UseProgressEvent
+		    Secure.Value = Client.EasyHandle.Secure
 		    UseCookies.Value = Client.Cookies.Enabled
-		    Verbose.Value = Client.EasyItem.Verbose
+		    Verbose.Value = Client.EasyHandle.Verbose
 		    YieldOnLoop.Value = Client.Yield
 		    
 		    If Client.Proxy.Address <> "" Then
@@ -2530,7 +2530,7 @@ End
 		      HTTPVer.ListIndex = 2
 		    End Select
 		    
-		    Select Case Client.EasyItem.SSLVersion
+		    Select Case Client.EasyHandle.SSLVersion
 		    Case libcURL.SSLVersion.Default
 		      SSLVer.ListIndex = 0
 		    Case libcURL.SSLVersion.SSLv2
@@ -2547,12 +2547,12 @@ End
 		      SSLVer.ListIndex = 6
 		    End Select
 		    
-		    If Client.EasyItem.URL <> "" Then TextField1.Text = Client.EasyItem.URL
+		    If Client.EasyHandle.URL <> "" Then TextField1.Text = Client.EasyHandle.URL
 		    
 		    nic.ListIndex = -1
-		    If Client.EasyItem.NetworkInterface <> Nil Then
+		    If Client.EasyHandle.NetworkInterface <> Nil Then
 		      For i As Integer = 0 To nic.ListCount - 1
-		        If nic.RowTag(i) IsA NetworkInterface And NetworkInterface(nic.RowTag(i)).IPAddress = Client.EasyItem.NetworkInterface.IPAddress Then
+		        If nic.RowTag(i) IsA NetworkInterface And NetworkInterface(nic.RowTag(i)).IPAddress = Client.EasyHandle.NetworkInterface.IPAddress Then
 		          nic.ListIndex = i
 		          Exit For
 		        End If
@@ -2560,8 +2560,8 @@ End
 		    End If
 		    
 		    
-		    If Client.EasyItem.CA_ListFile <> Nil Then
-		      CAListFile.Text = Client.EasyItem.CA_ListFile.AbsolutePath
+		    If Client.EasyHandle.CA_ListFile <> Nil Then
+		      CAListFile.Text = Client.EasyHandle.CA_ListFile.AbsolutePath
 		    Else
 		      CAListFile.Text = "Not specified"
 		    End If
@@ -2574,8 +2574,8 @@ End
 
 	#tag Method, Flags = &h1
 		Protected Sub ShowErrorBuffer()
-		  If Client.EasyItem.ErrorBuffer <> "" Then
-		    ErrorBuffer.Text = Client.EasyItem.ErrorBuffer
+		  If Client.EasyHandle.ErrorBuffer <> "" Then
+		    ErrorBuffer.Text = Client.EasyHandle.ErrorBuffer
 		    ErrorBuffer.Visible = True
 		  Else
 		    ErrorBuffer.Visible = False
@@ -2721,15 +2721,15 @@ End
 #tag Events CAListFile
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.CA_ListFile <> Nil Then Me.Text = Client.EasyItem.CA_ListFile.AbsolutePath
+		  If Client.EasyHandle.CA_ListFile <> Nil Then Me.Text = Client.EasyHandle.CA_ListFile.AbsolutePath
 		End Sub
 	#tag EndEvent
 	#tag Event
 		Sub MouseUp(X As Integer, Y As Integer)
 		  #pragma Unused X
 		  #pragma Unused Y
-		  If Client.EasyItem.CA_ListFile <> Nil Then
-		    Client.EasyItem.CA_ListFile.Parent.Launch
+		  If Client.EasyHandle.CA_ListFile <> Nil Then
+		    Client.EasyHandle.CA_ListFile.Parent.Launch
 		  End If
 		End Sub
 	#tag EndEvent
@@ -2746,9 +2746,9 @@ End
 		Sub Action()
 		  Dim f As FolderItem = GetOpenFolderItem(cURLTypes.SecurityCertificate)
 		  If f <> Nil Then
-		    Client.EasyItem.CA_ListFile = f
-		    Client.EasyItem.Secure = False
-		    CAListFile.Text = Client.EasyItem.CA_ListFile.AbsolutePath
+		    Client.EasyHandle.CA_ListFile = f
+		    Client.EasyHandle.Secure = False
+		    CAListFile.Text = Client.EasyHandle.CA_ListFile.AbsolutePath
 		  End If
 		End Sub
 	#tag EndEvent
@@ -2756,8 +2756,8 @@ End
 #tag Events CAUnset
 	#tag Event
 		Sub Action()
-		  Client.EasyItem.CA_ListFile = Nil
-		  Client.EasyItem.Secure = False
+		  Client.EasyHandle.CA_ListFile = Nil
+		  Client.EasyHandle.Secure = False
 		  CAListFile.Text = "Not specified"
 		End Sub
 	#tag EndEvent
@@ -2785,7 +2785,7 @@ End
 		Sub Action()
 		  Dim f As FolderItem = GetOpenFolderItem(cURLTypes.SecurityCertificate)
 		  If f <> Nil Then
-		    If Client.EasyItem.SetOption(libcURL.Opts.SSLCERT, f) Then
+		    If Client.EasyHandle.SetOption(libcURL.Opts.SSLCERT, f) Then
 		      ClientCert.Text = f.AbsolutePath
 		      ClientCertItem = f
 		    Else
@@ -2798,7 +2798,7 @@ End
 #tag Events ClientCertUnset
 	#tag Event
 		Sub Action()
-		  Call Client.EasyItem.SetOption(libcURL.Opts.SSLCERT, Nil)
+		  Call Client.EasyHandle.SetOption(libcURL.Opts.SSLCERT, Nil)
 		End Sub
 	#tag EndEvent
 #tag EndEvents
@@ -2816,14 +2816,14 @@ End
 	#tag EndEvent
 	#tag Event
 		Sub Change()
-		  If Me.ListIndex > -1 Then Client.EasyItem.NetworkInterface = Me.RowTag(Me.ListIndex)
+		  If Me.ListIndex > -1 Then Client.EasyHandle.NetworkInterface = Me.RowTag(Me.ListIndex)
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events Verbose
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.Verbose Then
+		  If Client.EasyHandle.Verbose Then
 		    Me.State = CheckBox.CheckedStates.Checked
 		  Else
 		    Me.State = CheckBox.CheckedStates.Unchecked
@@ -2833,14 +2833,14 @@ End
 	#tag Event
 		Sub Action()
 		  If mLockUI Then Return
-		  Client.EasyItem.Verbose = Me.Value
+		  Client.EasyHandle.Verbose = Me.Value
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events Secure
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.Secure Then
+		  If Client.EasyHandle.Secure Then
 		    Me.State = CheckBox.CheckedStates.Checked
 		  Else
 		    Me.State = CheckBox.CheckedStates.Unchecked
@@ -2850,14 +2850,14 @@ End
 	#tag Event
 		Sub Action()
 		  If mLockUI Then Return
-		  Client.EasyItem.Secure = Me.Value
+		  Client.EasyHandle.Secure = Me.Value
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events HTTPPreserveMethod
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.HTTPPreserveMethod Then
+		  If Client.EasyHandle.HTTPPreserveMethod Then
 		    Me.State = CheckBox.CheckedStates.Checked
 		  Else
 		    Me.State = CheckBox.CheckedStates.Unchecked
@@ -2867,14 +2867,14 @@ End
 	#tag Event
 		Sub Action()
 		  If mLockUI Then Return
-		  Client.EasyItem.HTTPPreserveMethod = Me.Value
+		  Client.EasyHandle.HTTPPreserveMethod = Me.Value
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events HTTPCompress
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.HTTPCompression Then
+		  If Client.EasyHandle.HTTPCompression Then
 		    Me.State = CheckBox.CheckedStates.Checked
 		  Else
 		    Me.State = CheckBox.CheckedStates.Unchecked
@@ -2884,14 +2884,14 @@ End
 	#tag Event
 		Sub Action()
 		  If mLockUI Then Return
-		  Client.EasyItem.HTTPCompression = Me.Value
+		  Client.EasyHandle.HTTPCompression = Me.Value
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events FollowRedirects
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.FollowRedirects Then
+		  If Client.EasyHandle.FollowRedirects Then
 		    Me.State = CheckBox.CheckedStates.Checked
 		  Else
 		    Me.State = CheckBox.CheckedStates.Unchecked
@@ -2901,14 +2901,14 @@ End
 	#tag Event
 		Sub Action()
 		  If mLockUI Then Return
-		  Client.EasyItem.FollowRedirects = Me.Value
+		  Client.EasyHandle.FollowRedirects = Me.Value
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events Autoreferer
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.AutoReferer Then
+		  If Client.EasyHandle.AutoReferer Then
 		    Me.State = CheckBox.CheckedStates.Checked
 		  Else
 		    Me.State = CheckBox.CheckedStates.Unchecked
@@ -2918,14 +2918,14 @@ End
 	#tag Event
 		Sub Action()
 		  If mLockUI Then Return
-		  Client.EasyItem.AutoReferer = Me.Value
+		  Client.EasyHandle.AutoReferer = Me.Value
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events AutoDisconnect
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.AutoDisconnect Then
+		  If Client.EasyHandle.AutoDisconnect Then
 		    Me.State = CheckBox.CheckedStates.Checked
 		  Else
 		    Me.State = CheckBox.CheckedStates.Unchecked
@@ -2935,14 +2935,14 @@ End
 	#tag Event
 		Sub Action()
 		  If mLockUI Then Return
-		  Client.EasyItem.AutoDisconnect = Me.Value
+		  Client.EasyHandle.AutoDisconnect = Me.Value
 		End Sub
 	#tag EndEvent
 #tag EndEvents
 #tag Events FailOnError
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.FailOnServerError Then
+		  If Client.EasyHandle.FailOnServerError Then
 		    Me.State = CheckBox.CheckedStates.Checked
 		  Else
 		    Me.State = CheckBox.CheckedStates.Unchecked
@@ -2952,7 +2952,7 @@ End
 	#tag Event
 		Sub Action()
 		  If mLockUI Then Return
-		  Client.EasyItem.FailOnServerError = Me.Value
+		  Client.EasyHandle.FailOnServerError = Me.Value
 		End Sub
 	#tag EndEvent
 #tag EndEvents
@@ -2986,7 +2986,7 @@ End
 #tag Events NoProgress
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.UseProgressEvent Then
+		  If Client.EasyHandle.UseProgressEvent Then
 		    Me.State = CheckBox.CheckedStates.Checked
 		  Else
 		    Me.State = CheckBox.CheckedStates.Unchecked
@@ -2996,7 +2996,7 @@ End
 	#tag Event
 		Sub Action()
 		  If mLockUI Then Return
-		  Client.EasyItem.UseProgressEvent = Me.Value
+		  Client.EasyHandle.UseProgressEvent = Me.Value
 		End Sub
 	#tag EndEvent
 #tag EndEvents
@@ -3138,7 +3138,7 @@ End
 		    h = Me.CellCheck(row, 4)
 		    
 		    If Not Client.Cookies.SetCookie(n, v, d, e, p, h) Then
-		      Dim err As New libcURL.cURLException(Client.EasyItem)
+		      Dim err As New libcURL.cURLException(Client.EasyHandle)
 		      MsgBox(err.Message)
 		      Me.Cell(row, 0) = Me.CellTag(row, 0)
 		      Me.Cell(row, 1) = Me.CellTag(row, 1)
@@ -3242,7 +3242,7 @@ End
 		  Dim f As FolderItem = GetSaveFolderItem(cURLTypes.NetscapeCookieJar, "cookie.jar")
 		  If f <> Nil Then
 		    If Not Client.Cookies.WriteCookies(f) Then
-		      Call MsgBox(libcURL.FormatError(Client.EasyItem.LastError), 16, "Cookie save failed")
+		      Call MsgBox(libcURL.FormatError(Client.EasyHandle.LastError), 16, "Cookie save failed")
 		    Else
 		      MsgBox("Cookies saved!")
 		    End If
@@ -3266,7 +3266,7 @@ End
 #tag Events NewCookieSessionButton
 	#tag Event
 		Sub Action()
-		  If Not Client.Cookies.NewSession Then Raise New libcURL.cURLException(Client.EasyItem)
+		  If Not Client.Cookies.NewSession Then Raise New libcURL.cURLException(Client.EasyHandle)
 		  UpdateCookieList()
 		End Sub
 	#tag EndEvent
@@ -3285,17 +3285,17 @@ End
 		  If mLockUI Then Return
 		  Select Case Me.Text
 		  Case "TLSv1.X"
-		    Client.EasyItem.SSLVersion = libcURL.SSLVersion.TLSv1
+		    Client.EasyHandle.SSLVersion = libcURL.SSLVersion.TLSv1
 		  Case "SSLv2"
-		    Client.EasyItem.SSLVersion = libcURL.SSLVersion.SSLv2
+		    Client.EasyHandle.SSLVersion = libcURL.SSLVersion.SSLv2
 		  Case "SSLv3"
-		    Client.EasyItem.SSLVersion = libcURL.SSLVersion.SSLv3
+		    Client.EasyHandle.SSLVersion = libcURL.SSLVersion.SSLv3
 		  Case "TLSv1.0"
-		    Client.EasyItem.SSLVersion = libcURL.SSLVersion.TLSv1_0
+		    Client.EasyHandle.SSLVersion = libcURL.SSLVersion.TLSv1_0
 		  Case "TLSv1.1"
-		    Client.EasyItem.SSLVersion = libcURL.SSLVersion.TLSv1_1
+		    Client.EasyHandle.SSLVersion = libcURL.SSLVersion.TLSv1_1
 		  Case "TLSv1.2"
-		    Client.EasyItem.SSLVersion = libcURL.SSLVersion.TLSv1_2
+		    Client.EasyHandle.SSLVersion = libcURL.SSLVersion.TLSv1_2
 		  Else
 		    Client.EasyItem.SSLVersion = libcURL.SSLVersion.Default
 		  End Select
@@ -3366,7 +3366,7 @@ End
 #tag Events YieldOnLoop
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.FollowRedirects Then
+		  If Client.EasyHandle.FollowRedirects Then
 		    Me.State = CheckBox.CheckedStates.Checked
 		  Else
 		    Me.State = CheckBox.CheckedStates.Unchecked
@@ -3611,10 +3611,10 @@ End
 	#tag Event
 		Sub Action()
 		  If Me.Caption = "Pause" Then
-		    If Client.EasyItem.Pause Then Me.Caption = "Resume"
+		    If Client.EasyHandle.Pause Then Me.Caption = "Resume"
 		    
 		  Else
-		    If Client.EasyItem.Resume Then Me.Caption = "Pause"
+		    If Client.EasyHandle.Resume Then Me.Caption = "Pause"
 		  End If
 		End Sub
 	#tag EndEvent

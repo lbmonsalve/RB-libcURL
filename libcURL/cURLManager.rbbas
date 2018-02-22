@@ -21,23 +21,23 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.Close
 		  
-		  If mMultiItem <> Nil Then mMultiItem.Close()
-		  If mEasyItem <> Nil Then
+		  If mMultiHandle <> Nil Then mMultiHandle.Close()
+		  If mEasyHandle <> Nil Then
 		    #pragma BreakOnExceptions Off
 		    Try
-		      If mRemoveDebugHandler Then RemoveHandler mEasyItem.DebugMessage, WeakAddressOf _DebugMessageHandler
+		      If mRemoveDebugHandler Then RemoveHandler mEasyHandle.DebugMessage, WeakAddressOf _DebugMessageHandler
 		    Catch
 		    Finally
 		      mRemoveDebugHandler = False
 		    End Try
 		    Try
-		      If mRemoveHeaderHandler Then RemoveHandler mEasyItem.HeaderReceived, WeakAddressOf _HeaderReceivedHandler
+		      If mRemoveHeaderHandler Then RemoveHandler mEasyHandle.HeaderReceived, WeakAddressOf _HeaderReceivedHandler
 		    Catch
 		    Finally
 		      mRemoveHeaderHandler = False
 		    End Try
 		    Try
-		      If mRemoveProgressHandler Then RemoveHandler mEasyItem.Progress, WeakAddressOf _ProgressHandler
+		      If mRemoveProgressHandler Then RemoveHandler mEasyHandle.Progress, WeakAddressOf _ProgressHandler
 		    Catch
 		    Finally
 		      mRemoveProgressHandler = False
@@ -45,7 +45,7 @@ Protected Class cURLManager
 		    #pragma BreakOnExceptions On
 		  End If
 		  
-		  mEasyItem = Nil
+		  mEasyHandle = Nil
 		End Sub
 	#tag EndMethod
 
@@ -56,15 +56,15 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.Constructor
 		  
-		  mMultiItem = New libcURL.MultiHandle
-		  AddHandler mMultiItem.TransferComplete, WeakAddressOf _TransferCompleteHandler
+		  mMultiHandle = New libcURL.MultiHandle
+		  AddHandler mMultiHandle.TransferComplete, WeakAddressOf _TransferCompleteHandler
 		  Me.Reset()
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Attributes( deprecated )  Sub Constructor(CopyOpts As libcURL.cURLManager)
-		  ' This method is deprecated. To duplicate an instance of cURLManager, duplicate its EasyItem
+		  ' This method is deprecated. To duplicate an instance of cURLManager, duplicate its EasyHandle
 		  ' and pass the duplicate to cURLManager.Constructor(EasyHandle) instead.
 		  '
 		  ' Creates a new instance of cURLManager by cloning the passed cURLManager
@@ -72,11 +72,11 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.Constructor
 		  
-		  Select Case CopyOpts.EasyItem
+		  Select Case CopyOpts.EasyHandle
 		  Case IsA libcURL.Protocols.FTPWildCard
-		    mEasyItem = New libcURL.Protocols.FTPWildCard(CopyOpts.EasyItem)
+		    mEasyHandle = New libcURL.Protocols.FTPWildCard(CopyOpts.EasyHandle)
 		  Else
-		    mEasyItem = New libcURL.EasyHandle(CopyOpts.EasyItem)
+		    mEasyHandle = New libcURL.EasyHandle(CopyOpts.EasyHandle)
 		  End Select
 		  Me.Constructor()
 		End Sub
@@ -89,7 +89,7 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.Constructor
 		  
-		  mEasyItem = ExistingEasy
+		  mEasyHandle = ExistingEasy
 		  Me.Constructor()
 		End Sub
 	#tag EndMethod
@@ -101,14 +101,14 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.Cookies
 		  
-		  Return mEasyItem.CookieEngine
+		  Return mEasyHandle.CookieEngine
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  Me.Close()
-		  mMultiItem = Nil
+		  mMultiHandle = Nil
 		End Sub
 	#tag EndMethod
 
@@ -120,8 +120,8 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.GetCookie
 		  
-		  Dim index As Integer = mEasyItem.CookieEngine.Lookup(Name, Domain)
-		  If index > -1 Then Return mEasyItem.CookieEngine.Value(index)
+		  Dim index As Integer = mEasyHandle.CookieEngine.Lookup(Name, Domain)
+		  If index > -1 Then Return mEasyHandle.CookieEngine.Value(index)
 		End Function
 	#tag EndMethod
 
@@ -137,8 +137,8 @@ Protected Class cURLManager
 		  
 		  If mDownloadMB <> Nil Then Return mDownloadMB
 		  Dim data As New MemoryBlock(0)
-		  If mEasyItem.DownloadStream = Nil Or Not mEasyItem.DownloadStream IsA BinaryStream Then Return data
-		  Dim bs As BinaryStream = BinaryStream(mEasyItem.DownloadStream)
+		  If mEasyHandle.DownloadStream = Nil Or Not mEasyHandle.DownloadStream IsA BinaryStream Then Return data
+		  Dim bs As BinaryStream = BinaryStream(mEasyHandle.DownloadStream)
 		  bs.Position = 0
 		  Dim out As New BinaryStream(data)
 		  While Not bs.EOF
@@ -157,7 +157,7 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.GetInfo
 		  
-		  If mEasyItem <> Nil Then Return mEasyItem.GetInfo(InfoType)
+		  If mEasyHandle <> Nil Then Return mEasyHandle.GetInfo(InfoType)
 		End Function
 	#tag EndMethod
 
@@ -205,7 +205,7 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.LastError
 		  
-		  Return mEasyItem.LastError
+		  Return mEasyHandle.LastError
 		End Function
 	#tag EndMethod
 
@@ -217,7 +217,7 @@ Protected Class cURLManager
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.Perform
 		  
 		  QueueTransfer(URL, ReadFrom, WriteTo)
-		  mMultiItem.Perform()
+		  mMultiHandle.Perform()
 		End Sub
 	#tag EndMethod
 
@@ -229,7 +229,7 @@ Protected Class cURLManager
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.Perform
 		  
 		  QueueTransfer(URL, ReadFrom, WriteTo)
-		  Do Until Not mMultiItem.PerformOnce()
+		  Do Until Not mMultiHandle.PerformOnce()
 		    If Yield And Rnd > 0.99 Then
 		      #If TargetHasGUI Then
 		        App.SleepCurrentThread(50)
@@ -239,7 +239,7 @@ Protected Class cURLManager
 		    End If
 		  Loop
 		  
-		  Return mEasyItem.LastError = 0
+		  Return mEasyHandle.LastError = 0
 		End Function
 	#tag EndMethod
 
@@ -250,17 +250,17 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.Proxy
 		  
-		  Return mEasyItem.ProxyEngine
+		  Return mEasyHandle.ProxyEngine
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
 		Private Sub QueueTransfer(URL As String, ReadFrom As Readable, WriteTo As Writeable)
-		  If Not mMultiItem.AddItem(mEasyItem) Then Raise New cURLException(mMultiItem)
+		  If Not mMultiHandle.AddHandle(mEasyHandle) Then Raise New cURLException(mMultiHandle)
 		  
 		  mIsTransferComplete = False
 		  mAbort = False
-		  If URL.Trim <> "" Then mEasyItem.URL = URL
+		  If URL.Trim <> "" Then mEasyHandle.URL = URL
 		  mHeaders = Nil
 		  If WriteTo = Nil Then
 		    mDownloadMB = New MemoryBlock(0)
@@ -269,24 +269,24 @@ Protected Class cURLManager
 		    mDownloadMB = Nil
 		  End If
 		  If ReadFrom = Nil And mUploadMB <> Nil Then ReadFrom = New BinaryStream(mUploadMB)
-		  mEasyItem.DownloadStream = WriteTo
-		  mEasyItem.UploadStream = ReadFrom
-		  If mEasyItem.UseErrorBuffer Then mEasyItem.UseErrorBuffer = True ' clears the previous buffer, if any
+		  mEasyHandle.DownloadStream = WriteTo
+		  mEasyHandle.UploadStream = ReadFrom
+		  If mEasyHandle.UseErrorBuffer Then mEasyHandle.UseErrorBuffer = True ' clears the previous buffer, if any
 		  
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub Reset()
-		  If mEasyItem = Nil Then mEasyItem = New libcURL.EasyHandle Else mEasyItem.Reset
-		  Me.EasyItem = mEasyItem
-		  mEasyItem.UserAgent = libcURL.Version.UserAgent
-		  mEasyItem.Secure = True
-		  mEasyItem.CA_ListFile = libcURL.Default_CA_File
-		  mEasyItem.FailOnServerError = True
-		  mEasyItem.FollowRedirects = True
-		  mEasyItem.AutoReferer = True
-		  mEasyItem.HTTPCompression = libcURL.Version.LibZ.IsAvailable
+		  If mEasyHandle = Nil Then mEasyHandle = New libcURL.EasyHandle Else mEasyHandle.Reset
+		  Me.EasyHandle = mEasyHandle
+		  mEasyHandle.UserAgent = libcURL.Version.UserAgent
+		  mEasyHandle.Secure = True
+		  mEasyHandle.CA_ListFile = libcURL.Default_CA_File
+		  mEasyHandle.FailOnServerError = True
+		  mEasyHandle.FollowRedirects = True
+		  mEasyHandle.AutoReferer = True
+		  mEasyHandle.HTTPCompression = libcURL.Version.LibZ.IsAvailable
 		  Me.Yield = True
 		End Sub
 	#tag EndMethod
@@ -298,7 +298,7 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.SetCookie
 		  
-		  Return mEasyItem.CookieEngine.SetCookie(Name, Value, Domain, Expires, Path, HTTPOnly)
+		  Return mEasyHandle.CookieEngine.SetCookie(Name, Value, Domain, Expires, Path, HTTPOnly)
 		End Function
 	#tag EndMethod
 
@@ -309,7 +309,7 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.SetOption
 		  
-		  If mEasyItem <> Nil Then Return mEasyItem.SetOption(OptionNumber, NewValue)
+		  If mEasyHandle <> Nil Then Return mEasyHandle.SetOption(OptionNumber, NewValue)
 		End Function
 	#tag EndMethod
 
@@ -321,7 +321,7 @@ Protected Class cURLManager
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.SetRequestHeader
 		  
-		  mRequestHeaders = mEasyItem.SetRequestHeader(mRequestHeaders, Name, Value)
+		  mRequestHeaders = mEasyHandle.SetRequestHeader(mRequestHeaders, Name, Value)
 		  Return (mRequestHeaders <> Nil Or Name = "")
 		End Function
 	#tag EndMethod
@@ -336,9 +336,9 @@ Protected Class cURLManager
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.SetRequestMethod
 		  
 		  If RequestMethod.Trim <> "" Then
-		    Return mEasyItem.SetOption(libcURL.Opts.CUSTOMREQUEST, RequestMethod)
+		    Return mEasyHandle.SetOption(libcURL.Opts.CUSTOMREQUEST, RequestMethod)
 		  Else
-		    Return mEasyItem.SetOption(libcURL.Opts.CUSTOMREQUEST, Nil)
+		    Return mEasyHandle.SetOption(libcURL.Opts.CUSTOMREQUEST, Nil)
 		  End If
 		End Function
 	#tag EndMethod
@@ -354,7 +354,7 @@ Protected Class cURLManager
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.SetUploadData
 		  
 		  mUploadMB = UploadData
-		  mEasyItem.UploadMode = (mUploadMB <> Nil)
+		  mEasyHandle.UploadMode = (mUploadMB <> Nil)
 		End Sub
 	#tag EndMethod
 
@@ -388,8 +388,8 @@ Protected Class cURLManager
 	#tag Method, Flags = &h21
 		Private Sub _TransferCompleteHandler(Sender As libcURL.MultiHandle, Item As libcURL.EasyHandle)
 		  #pragma Unused Sender
-		  If mDownloadMB <> Nil And mEasyItem.DownloadStream <> Nil And mEasyItem.DownloadStream IsA BinaryStream Then 
-		    BinaryStream(mEasyItem.DownloadStream).Close
+		  If mDownloadMB <> Nil And mEasyHandle.DownloadStream <> Nil And mEasyHandle.DownloadStream IsA BinaryStream Then
+		    BinaryStream(mEasyHandle.DownloadStream).Close
 		  End If
 		  
 		  mLastTransferError = Item.LastError
@@ -402,7 +402,7 @@ Protected Class cURLManager
 		    RaiseEvent TransferComplete(Me.GetInfo(libcURL.Info.SIZE_DOWNLOAD).Int32Value, Me.GetInfo(libcURL.Info.SIZE_UPLOAD).Int32Value)
 		  End If
 		  
-		  mEasyItem.ClearFormData()
+		  mEasyHandle.ClearFormData()
 		  mUploadMB = Nil
 		  ErrorSetter(Item).LastError = mLastTransferError
 		End Sub
@@ -429,7 +429,7 @@ Protected Class cURLManager
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  return mEasyItem
+			  return mEasyHandle
 			End Get
 		#tag EndGetter
 		#tag Setter
@@ -437,7 +437,7 @@ Protected Class cURLManager
 			  ' Gets and sets the EasyHandle instance which will be/has been used to conduct transfers.
 			  '
 			  ' See:
-			  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.EasyItem
+			  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.EasyHandle
 			  
 			  Me.Close()
 			  Try
@@ -458,24 +458,38 @@ Protected Class cURLManager
 			  Catch
 			    mRemoveProgressHandler = False
 			  End Try
-			  mEasyItem = value
+			  mEasyHandle = value
 			End Set
 		#tag EndSetter
-		EasyItem As libcURL.EasyHandle
+		EasyHandle As libcURL.EasyHandle
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return Me.EasyHandle
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  Me.EasyHandle = value
+			End Set
+		#tag EndSetter
+		Attributes( deprecated = "cURLManager.EasyHandle" ) EasyItem As libcURL.EasyHandle
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
 			  ' Gets the version of HTTP to be used. Returns HTTP_VERSION_1_0, HTTP_VERSION_1_1, HTTP_VERSION_2_0, or HTTP_VERSION_NONE
-			  return EasyItem.HTTPVersion
+			  return Me.EasyHandle.HTTPVersion
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
-			  ' Sets the version of HTTP to be used. 
+			  ' Sets the version of HTTP to be used.
 			  
-			  EasyItem.HTTPVersion = value
+			  Me.EasyHandle.HTTPVersion = value
 			End Set
 		#tag EndSetter
 		HTTPVersion As libcURL.HTTPVersion
@@ -508,7 +522,7 @@ Protected Class cURLManager
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mEasyItem As libcURL.EasyHandle
+		Private mEasyHandle As libcURL.EasyHandle
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
@@ -524,7 +538,7 @@ Protected Class cURLManager
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mMultiItem As libcURL.MultiHandle
+		Private mMultiHandle As libcURL.MultiHandle
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
@@ -550,12 +564,12 @@ Protected Class cURLManager
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  Return EasyItem.Password
+			  Return Me.EasyHandle.Password
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
-			  EasyItem.Password = value
+			  Me.EasyHandle.Password = value
 			End Set
 		#tag EndSetter
 		Password As String
@@ -564,12 +578,12 @@ Protected Class cURLManager
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  Return EasyItem.Username
+			  Return Me.EasyHandle.Username
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
-			  EasyItem.Username = value
+			  Me.EasyHandle.Username = value
 			End Set
 		#tag EndSetter
 		Username As String

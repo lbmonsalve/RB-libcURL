@@ -2,7 +2,7 @@
 Protected Class MultiHandle
 Inherits libcURL.cURLHandle
 	#tag Method, Flags = &h0
-		Function AddItem(Item As libcURL.EasyHandle) As Boolean
+		Function AddHandle(Item As libcURL.EasyHandle) As Boolean
 		  ' Add a EasyHandle to the multistack. The EasyHandle should have all of its options already set and ready to go.
 		  ' A EasyHandle may belong to only one MultiHandle object at a time. Passing an owned EasyHandle will fail.
 		  '
@@ -24,6 +24,12 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Attributes( deprecated = "MultiHandle.AddHandle" )  Function AddItem(Item As libcURL.EasyHandle) As Boolean
+		  Return Me.AddHandle(Item)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub Close()
 		  ' Removes all EasyHandles from the stack
 		  '
@@ -32,7 +38,7 @@ Inherits libcURL.cURLHandle
 		  
 		  If Instances <> Nil Then
 		    For Each h As Integer In Instances.Keys
-		      Call Me.RemoveItem(Instances.Value(h))
+		      Call Me.RemoveHandle(Instances.Value(h))
 		    Next
 		  End If
 		End Sub
@@ -81,8 +87,14 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function HasItem(EasyItem As libcURL.EasyHandle) As Boolean
+		Function HasHandle(EasyItem As libcURL.EasyHandle) As Boolean
 		  Return Instances.HasKey(EasyItem.Handle)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Attributes( deprecated = "MultiHandle.HasHandle" )  Function HasItem(EasyItem As libcURL.EasyHandle) As Boolean
+		  Return Me.HasHandle(EasyItem)
 		End Function
 	#tag EndMethod
 
@@ -143,7 +155,7 @@ Inherits libcURL.cURLHandle
 		        Dim msg As CURLMsg = ReadNextMsg(c) ' on exit, 'c' will contain the number of messages remaining
 		        If c > -1 Then
 		          Dim curl As EasyHandle = Instances.Value(msg.easy_handle)
-		          Call Me.RemoveItem(curl)
+		          Call Me.RemoveHandle(curl)
 		          ErrorSetter(curl).LastError = Integer(msg.Data) ' msg.Data is the last error code for the easy handle
 		          RaiseEvent TransferComplete(curl)
 		          
@@ -215,7 +227,7 @@ Inherits libcURL.cURLHandle
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function RemoveItem(Item As libcURL.EasyHandle) As Boolean
+		Function RemoveHandle(Item As libcURL.EasyHandle) As Boolean
 		  ' Removes the passed EasyHandle from the multistack. If there no more EasyHandles then turns off the PerformTimer.
 		  '
 		  ' See:
@@ -226,6 +238,12 @@ Inherits libcURL.cURLHandle
 		  If Instances.HasKey(Item.Handle) Then Instances.Remove(Item.Handle)
 		  If Instances.Count = 0 And PerformTimer <> Nil Then PerformTimer.Mode = Timer.ModeOff
 		  Return mLastError = 0
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Attributes( deprecated = "MultiHandle.RemoveHandle" )  Function RemoveItem(Item As libcURL.EasyHandle) As Boolean
+		  Return Me.RemoveHandle(Item)
 		End Function
 	#tag EndMethod
 
