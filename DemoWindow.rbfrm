@@ -3297,7 +3297,7 @@ End
 		  Case "TLSv1.2"
 		    Client.EasyHandle.SSLVersion = libcURL.SSLVersion.TLSv1_2
 		  Else
-		    Client.EasyItem.SSLVersion = libcURL.SSLVersion.Default
+		    Client.EasyHandle.SSLVersion = libcURL.SSLVersion.Default
 		  End Select
 		  
 		End Sub
