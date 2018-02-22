@@ -9,7 +9,7 @@ Inherits libcURL.cURLHandle
 		  ' http://curl.haxx.se/libcurl/c/CURLOPT_SHARE.html
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.ShareHandle.AddItem
 		  
-		  If Not Me.HasItem(Item) And Item.SetOption(libcURL.Opts.SHARE, Me) Then
+		  If Not Me.HasHandle(Item) And Item.SetOption(libcURL.Opts.SHARE, Me) Then
 		    SharedHandles.Value(Item.Handle) = Item
 		    Return True
 		  Else
@@ -34,7 +34,7 @@ Inherits libcURL.cURLHandle
 		  
 		  If SharedHandles <> Nil Then
 		    For Each h As Integer In SharedHandles.Keys
-		      Call Me.RemoveItem(SharedHandles.Value(h))
+		      Call Me.RemoveHandle(SharedHandles.Value(h))
 		    Next
 		  End If
 		  
