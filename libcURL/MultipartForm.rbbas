@@ -349,7 +349,7 @@ Implements FormStreamGetter
 		Protected Function FormAddPtr(Option As Integer, Value As Ptr, Option1 As Integer = CURLFORM_END, Value1 As Ptr = Nil, Option2 As Integer = CURLFORM_END, Value2 As Ptr = Nil, Option3 As Integer = CURLFORM_END, Value3 As Ptr = Nil, Option4 As Integer = CURLFORM_END, Value4 As Ptr = Nil, Option5 As Integer = CURLFORM_END, Value5 As Ptr = Nil, Option6 As Integer = CURLFORM_END, Value6 As Ptr = Nil, Option7 As Integer = CURLFORM_END, Value7 As Ptr = Nil, Option8 As Integer = CURLFORM_END, Value8 As Ptr = Nil, Option9 As Integer = CURLFORM_END, Value9 As Ptr = Nil, Option10 As Integer = CURLFORM_END, Value10 As Ptr = Nil) As Boolean
 		  mLastError = curl_formadd(mHandle, LastItem, Option, Value, Option1, Value1, _
 		  Option2, Value2, Option3, Value3, Option4, Value4, Option5, Value5, Option6, _
-		   Value6, Option7, Value7, Option8, Value8, Option9, Value9, Option10, Value10, CURLFORM_END)
+		  Value6, Option7, Value7, Option8, Value8, Option9, Value9, Option10, Value10, CURLFORM_END)
 		  
 		  Return mLastError = 0
 		End Function
@@ -386,7 +386,7 @@ Implements FormStreamGetter
 	#tag Method, Flags = &h0
 		Function GetElement(Index As Integer) As libcURL.MultipartFormElement
 		  ' Returns a reference to the MultipartFormElement at the specified index; if the index is out of bounds
-		  ' then an OutOfBoundsException will be raised. 
+		  ' then an OutOfBoundsException will be raised.
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MultipartForm.GetElement

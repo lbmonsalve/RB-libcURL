@@ -4,7 +4,7 @@ Protected Module libcURL
 		Protected Function CompareDomains(Hostname1 As String, Hostname2 As String, Optional EasyItem As libcURL.EasyHandle) As Boolean
 		  ' Compares Hostname1 and Hostname2 to determine whether they belong to the same subdomain.
 		  ' For example 'api.example.com' matches 'example.com' and 'api.example.com' but not 'www.example.com'
-		  ' libcurl needs a curl_easy handle to URLdecode data. If EasyItem is not Nil, then the EasyItem is 
+		  ' libcurl needs a curl_easy handle to URLdecode data. If EasyItem is not Nil, then the EasyItem is
 		  ' used; otherwise a new EasyHandle is constructed.
 		  '
 		  ' See:
@@ -1829,7 +1829,7 @@ Protected Module libcURL
 	#tag Method, Flags = &h1
 		Protected Function URLDecode(Data As String, Optional EasyItem As libcURL.EasyHandle) As String
 		  ' Returns the decoded Data using percent encoding as defined in rfc2396
-		  ' curl_easy_unescape needs a curl_easy handle to decode data. If EasyItem 
+		  ' curl_easy_unescape needs a curl_easy handle to decode data. If EasyItem
 		  ' is not Nil, then the EasyItem is used; otherwise a new EasyHandle is constructed.
 		  '
 		  ' See:
@@ -1919,9 +1919,9 @@ Protected Module libcURL
 
 
 	#tag Constant, Name = cURLLib, Type = String, Dynamic = False, Default = \"libcurl", Scope = Private
-		#Tag Instance, Platform = Mac OS, Language = Default, Definition  = \"libcurl.4.dylib"
-		#Tag Instance, Platform = Windows, Language = Default, Definition  = \"libcurl.dll"
-		#Tag Instance, Platform = Linux, Language = Default, Definition  = \"libcurl"
+		#Tag Instance, Platform = -, Language = Default, Definition  = \"libcurl.4.dylib"
+		#Tag Instance, Platform = Mac OS, Language = Default, Definition  = \"libcurl.dll"
+		#Tag Instance, Platform = Mac Classic, Language = Default, Definition  = \"libcurl"
 	#tag EndConstant
 
 	#tag Constant, Name = CURL_GLOBAL_ALL, Type = Double, Dynamic = False, Default = \"3", Scope = Protected

@@ -83,7 +83,7 @@ Inherits libcURL.cURLHandle
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.ListPtr.Item
 		  
-		  If List = Nil Then 
+		  If List = Nil Then
 		    Dim err As New NilObjectException
 		    err.Message = "The list is empty."
 		    Raise err

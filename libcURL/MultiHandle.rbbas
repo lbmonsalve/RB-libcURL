@@ -442,6 +442,16 @@ Inherits libcURL.cURLHandle
 
 	#tag ViewBehavior
 		#tag ViewProperty
+			Name="HTTPMultiplexing"
+			Group="Behavior"
+			Type="Boolean"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="HTTPPipelining"
+			Group="Behavior"
+			Type="Boolean"
+		#tag EndViewProperty
+		#tag ViewProperty
 			Name="Index"
 			Visible=true
 			Group="ID"

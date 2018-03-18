@@ -8,7 +8,7 @@ Protected Module LibZ
 		  If Not avail Then Return False
 		  
 		  Static versionname As String
-		  If versionname = "" And Struct.libzVersion <> Nil Then 
+		  If versionname = "" And Struct.libzVersion <> Nil Then
 		    Dim mb As MemoryBlock = Struct.libzVersion
 		    versionname = mb.CString(0)
 		  End If

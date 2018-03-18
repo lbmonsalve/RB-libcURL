@@ -118,7 +118,7 @@ Inherits libcURL.cURLManager
 		  ' may be an instace of MultipartForm, or a Dictionary of NAME:VALUE pairs comprising HTML form elements: NAME is
 		  ' a string containing the form-element name; VALUE may be a string or a FolderItem. WriteTo is an optional Writeable
 		  ' object (e.g. BinaryStream); downloaded data will be written to this object directly. If WriteTo is Nil then use
-		  ' the GetDownloadedData method to get any downloaded data. This method will block the calling thread until the 
+		  ' the GetDownloadedData method to get any downloaded data. This method will block the calling thread until the
 		  ' transfer completes. All events will be raised on the calling thread.
 		  '
 		  ' See:
@@ -219,7 +219,7 @@ Inherits libcURL.cURLManager
 		  ' Synchronously performs an upload using protocol-appropriate semantics (http PUT, ftp STOR, etc.)
 		  ' The protocol is inferred from the URL; explictly specify the protocol in the URL to avoid bad guesses.
 		  ' ReadFrom is an object that implements the Readable interface (e.g. BinaryStream). The uploaded data will be
-		  ' read from this object. WriteTo is an optional Writeable object (e.g. BinaryStream); downloaded data will be 
+		  ' read from this object. WriteTo is an optional Writeable object (e.g. BinaryStream); downloaded data will be
 		  ' written to this object directly. If WriteTo is Nil then use the GetDownloadedData method to get any downloaded
 		  ' data. This method will block the calling thread until the transfer completes. All events will be raised
 		  ' on the calling thread.
@@ -259,6 +259,12 @@ Inherits libcURL.cURLManager
 			InitialValue="-2147483648"
 			Type="Integer"
 			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="IsSSLCertOK"
+			Group="Behavior"
+			Type="Boolean"
+			InheritedFrom="libcURL.cURLManager"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Left"

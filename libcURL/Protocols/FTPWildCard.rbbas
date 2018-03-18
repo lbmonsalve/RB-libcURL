@@ -72,7 +72,7 @@ Inherits libcURL.EasyHandle
 		  Dim mb As MemoryBlock = Info.FileName
 		  Dim filename As String = mb.CString(0)
 		  If filename = "." Or filename = ".." Then Return CURL_CHUNK_BGN_FUNC_SKIP ' skip parent and self references
-		  Dim file As FolderItem 
+		  Dim file As FolderItem
 		  If LocalRoot <> Nil Then file = LocalRoot.Child(filename)
 		  
 		  Dim p As New Permissions(Info.Perm)
@@ -191,7 +191,7 @@ Inherits libcURL.EasyHandle
 
 	#tag Method, Flags = &h0
 		Function SetOption(OptionNumber As Integer, NewValue As Variant) As Boolean
-		  ' Call this method with a curl option number and a value that is acceptable for that option. 
+		  ' Call this method with a curl option number and a value that is acceptable for that option.
 		  ' Refer to the EasyHandle.SetOption method for additional info.
 		  
 		  ' See:
@@ -255,7 +255,7 @@ Inherits libcURL.EasyHandle
 		#tag Getter
 			Get
 			  ' Gets whether the PatternMatch event will be raised in lieu of libcurl's default pattern matching function.
-			  ' 
+			  '
 			  ' See:
 			  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.Protocols.FTPWildCard.CustomMatch
 			  
@@ -492,6 +492,11 @@ Inherits libcURL.EasyHandle
 			InheritedFrom="libcURL.EasyHandle"
 		#tag EndViewProperty
 		#tag ViewProperty
+			Name="Remaining"
+			Group="Behavior"
+			Type="Integer"
+		#tag EndViewProperty
+		#tag ViewProperty
 			Name="RemoteIP"
 			Group="Behavior"
 			Type="String"
@@ -538,6 +543,12 @@ Inherits libcURL.EasyHandle
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="UseErrorBuffer"
+			Group="Behavior"
+			Type="Boolean"
+			InheritedFrom="libcURL.EasyHandle"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="UseProgressEvent"
 			Group="Behavior"
 			Type="Boolean"
 			InheritedFrom="libcURL.EasyHandle"

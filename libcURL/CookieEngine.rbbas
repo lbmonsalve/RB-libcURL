@@ -331,7 +331,7 @@ Protected Class CookieEngine
 		  
 		  If CookieFile <> Nil Then
 		    Return Owner.SetOption(libcURL.Opts.COOKIEJAR, CookieFile)
-		  ElseIf libcURL.Version.IsAtLeast(7, 17, 1) Then 
+		  ElseIf libcURL.Version.IsAtLeast(7, 17, 1) Then
 		    Return Owner.SetOption(libcURL.Opts.COOKIELIST, "FLUSH")
 		  Else
 		    ErrorSetter(Owner).LastError = libcURL.Errors.FEATURE_UNAVAILABLE

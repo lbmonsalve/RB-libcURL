@@ -439,6 +439,11 @@ Protected Class ProxyEngine
 			InheritedFrom="Object"
 		#tag EndViewProperty
 		#tag ViewProperty
+			Name="UnifiedHeaders"
+			Group="Behavior"
+			Type="Boolean"
+		#tag EndViewProperty
+		#tag ViewProperty
 			Name="Username"
 			Group="Behavior"
 			Type="String"

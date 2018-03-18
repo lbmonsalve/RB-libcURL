@@ -96,7 +96,7 @@ Inherits libcURL.cURLHandle
 		Function RemoveItem(Item As libcURL.EasyHandle) As Boolean
 		  ' Remove an easy handle from share handle.
 		  '
-		  ' See: 
+		  ' See:
 		  ' http://curl.haxx.se/libcurl/c/CURLOPT_SHARE.html
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.ShareHandle.RemoveItem
 		  
@@ -205,7 +205,6 @@ Inherits libcURL.cURLHandle
 		This class wraps the curl_share API. EasyHandles that are added to a ShareHandle instance may share SSL session data, 
 		DNS caches, connection pools, and/or HTTP cookies. By default nothing is shared. You must enable the share options 
 		you want before adding any EasyHandles to the share. Doing so after will raise an error (CURLSHE_IN_USE (2))
-		
 	#tag EndNote
 
 
@@ -386,6 +385,11 @@ Inherits libcURL.cURLHandle
 			Visible=true
 			Group="ID"
 			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="ShareConnections"
+			Group="Behavior"
+			Type="Boolean"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="ShareCookies"

@@ -418,7 +418,7 @@ Implements FormStreamGetter
 		  ' http://curl.haxx.se/libcurl/c/curl_mime_headers.html
 		  
 		  Dim own As Integer
-		  If TakeOwnerShip Then 
+		  If TakeOwnerShip Then
 		    own = 1
 		    If mOwnedLists.IndexOf(Headers) = -1 Then mOwnedLists.Append(Headers)
 		  End If
@@ -478,7 +478,7 @@ Implements FormStreamGetter
 			  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MIMEMessage.FirstPart
 			  
 			  Dim List As Ptr = Ptr(Me.Handle)
-			  If List <> Nil Then 
+			  If List <> Nil Then
 			    Dim m As curl_mime = List.curl_mime
 			    Return New MIMEMessagePart(m.FirstPart, Me)
 			  End If

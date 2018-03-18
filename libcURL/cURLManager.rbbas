@@ -6,7 +6,7 @@ Protected Class cURLManager
 		  ' next time it is raised. If no transfer is in progress or if the Progress event has been disabled
 		  ' then this method has no effect.
 		  '
-		  ' See: 
+		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.Abort
 		  
 		  If Not Me.IsTransferComplete Then mAbort = True
@@ -114,7 +114,7 @@ Protected Class cURLManager
 
 	#tag Method, Flags = &h0
 		Function GetCookie(Name As String, Domain As String) As String
-		  ' Gets the value of the first cookie named 'Name' set for the host matching 'Domain', or the empty 
+		  ' Gets the value of the first cookie named 'Name' set for the host matching 'Domain', or the empty
 		  ' string ("") if no cookie is found. For more advanced lookups refer to the CookieEngine class.
 		  '
 		  ' See:
@@ -188,7 +188,7 @@ Protected Class cURLManager
 
 	#tag Method, Flags = &h0
 		Function IsTransferComplete() As Boolean
-		  ' After a transfer is initiated this method will return False until the 
+		  ' After a transfer is initiated this method will return False until the
 		  ' transfer completes (successfully or not.)
 		  '
 		  ' See:
@@ -388,7 +388,7 @@ Protected Class cURLManager
 	#tag Method, Flags = &h21
 		Private Sub _TransferCompleteHandler(Sender As libcURL.MultiHandle, Item As libcURL.EasyHandle)
 		  #pragma Unused Sender
-		  If mDownloadMB <> Nil And mEasyItem.DownloadStream <> Nil And mEasyItem.DownloadStream IsA BinaryStream Then 
+		  If mDownloadMB <> Nil And mEasyItem.DownloadStream <> Nil And mEasyItem.DownloadStream IsA BinaryStream Then
 		    BinaryStream(mEasyItem.DownloadStream).Close
 		  End If
 		  
@@ -473,7 +473,7 @@ Protected Class cURLManager
 		#tag EndGetter
 		#tag Setter
 			Set
-			  ' Sets the version of HTTP to be used. 
+			  ' Sets the version of HTTP to be used.
 			  
 			  EasyItem.HTTPVersion = value
 			End Set
@@ -607,6 +607,11 @@ Protected Class cURLManager
 			InheritedFrom="Object"
 		#tag EndViewProperty
 		#tag ViewProperty
+			Name="Password"
+			Group="Behavior"
+			Type="String"
+		#tag EndViewProperty
+		#tag ViewProperty
 			Name="Super"
 			Visible=true
 			Group="ID"
@@ -618,6 +623,17 @@ Protected Class cURLManager
 			Group="Position"
 			InitialValue="0"
 			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Username"
+			Group="Behavior"
+			Type="String"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Yield"
+			Group="Behavior"
+			InitialValue="True"
+			Type="Boolean"
 		#tag EndViewProperty
 	#tag EndViewBehavior
 End Class

@@ -3,7 +3,7 @@ Protected Class MultipartFormElement
 	#tag Method, Flags = &h0
 		Sub Constructor(ItemStruct As Ptr, Owner As libcURL.MultipartForm)
 		  ' Constructs a new MultipartFormElement. Generally, you should not construct instances
-		  ' of this class. Use the value returned from MultipartForm.GetElement, MultipartFormElement.NextElement, 
+		  ' of this class. Use the value returned from MultipartForm.GetElement, MultipartFormElement.NextElement,
 		  ' or MultipartFormElement.MoreFiles instead.
 		  '
 		  ' See:
@@ -32,7 +32,7 @@ Protected Class MultipartFormElement
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' If the form element's Type is FormElementType.MemoryBlock, then this property 
+			  ' If the form element's Type is FormElementType.MemoryBlock, then this property
 			  ' will return a pointer to the MemoryBlock being used. Otherwise, returns Nil.
 			  '
 			  ' See:
@@ -47,7 +47,7 @@ Protected Class MultipartFormElement
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' If the form element's Type is FormElementType.MemoryBlock, then this property will return 
+			  ' If the form element's Type is FormElementType.MemoryBlock, then this property will return
 			  ' length of the buffer in bytes.
 			  '
 			  ' See:
@@ -62,7 +62,7 @@ Protected Class MultipartFormElement
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' A list of additional headers that have been included with the form element. If no additional 
+			  ' A list of additional headers that have been included with the form element. If no additional
 			  ' headers were specified then this property will be Nil.
 			  '
 			  ' See:
@@ -135,9 +135,9 @@ Protected Class MultipartFormElement
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' If the form element is a file part (regardless of whether an actual file is used), then 
+			  ' If the form element is a file part (regardless of whether an actual file is used), then
 			  ' this property will return the file name being used.
-			  ' 
+			  '
 			  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MultipartFormElement.FileName
 			  
 			  Dim mb As MemoryBlock = Struct.ShowFileName
@@ -201,7 +201,7 @@ Protected Class MultipartFormElement
 		#tag Getter
 			Get
 			  ' Returns the name of the form element.
-			  ' 
+			  '
 			  ' See:
 			  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MultipartFormElement.Name
 			  
@@ -343,16 +343,19 @@ Protected Class MultipartFormElement
 			Name="Contents"
 			Group="Behavior"
 			Type="String"
+			EditorType="MultiLineEditor"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="ContentType"
 			Group="Behavior"
 			Type="String"
+			EditorType="MultiLineEditor"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="FileName"
 			Group="Behavior"
 			Type="String"
+			EditorType="MultiLineEditor"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Flags"
