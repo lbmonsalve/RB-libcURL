@@ -3,19 +3,16 @@ Protected Class MIMEMessage
 Inherits libcURL.cURLHandle
 Implements FormStreamGetter
 	#tag Method, Flags = &h0
-		Function AddElement(Name As String, Value As FolderItem, ContentType As String = "", AdditionalHeaders As libcURL.ListPtr = Nil, Encoding As libcURL.MIMEMessage.TransferEncoding = libcURL.MIMEMessage.TransferEncoding.Binary) As Boolean
+		Function AddElement(Name As String, Value As FolderItem, FileName As String = "", ContentType As String = "", AdditionalHeaders As libcURL.ListPtr = Nil, Encoding As libcURL.TransferEncoding = libcURL.TransferEncoding.Binary) As Boolean
 		  ' Adds the passed file to the form using the specified name.
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MIMEMessage.AddElement
 		  
 		  Dim part As Ptr = AddPart()
-		  If part = Nil Then
-		    mLastError = libcURL.Errors.MIME_ADD_FAILED
-		    Return False
-		  End If
 		  If Not SetPartName(part, Name) Then Return False
 		  If Not SetPartFile(part, Value) Then Return False
+		  If FileName <> "" And Not SetPartFileName(part, FileName) Then Return False
 		  If ContentType = "" Then ContentType = MIMEType(Value)
 		  If ContentType <> "" Then
 		    If Not SetPartType(part, ContentType) Then Return False
@@ -43,10 +40,6 @@ Implements FormStreamGetter
 		  End If
 		  
 		  Dim part As Ptr = AddPart()
-		  If part = Nil Then
-		    mLastError = libcURL.Errors.MIME_ADD_FAILED
-		    Return False
-		  End If
 		  If Not SetPartName(part, Name) Then Return False
 		  If Not SetPartSubparts(part, Value) Then Return False
 		  If AdditionalHeaders <> Nil Then
@@ -57,17 +50,13 @@ Implements FormStreamGetter
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function AddElement(Name As String, ValueStream As Readable, ValueSize As Integer, Filename As String = "", ContentType As String = "", AdditionalHeaders As libcURL.ListPtr = Nil, Encoding As libcURL.MIMEMessage.TransferEncoding = libcURL.MIMEMessage.TransferEncoding.Binary) As Boolean
+		Function AddElement(Name As String, ValueStream As Readable, ValueSize As Integer, Filename As String = "", ContentType As String = "", AdditionalHeaders As libcURL.ListPtr = Nil, Encoding As libcURL.TransferEncoding = libcURL.TransferEncoding.Binary) As Boolean
 		  ' Adds an element using the specified name, with contents which will be read from the passed Readable object.
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MIMEMessage.AddElement
 		  
 		  Dim part As Ptr = AddPart()
-		  If part = Nil Then
-		    mLastError = libcURL.Errors.MIME_ADD_FAILED
-		    Return False
-		  End If
 		  If Not SetPartName(part, Name) Then Return False
 		  If Filename <> "" Then
 		    If Not SetPartFileName(part, Filename + Chr(0)) Then Return False
@@ -94,17 +83,13 @@ Implements FormStreamGetter
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function AddElement(Name As String, Value As String, AdditionalHeaders As libcURL.ListPtr = Nil, Encoding As libcURL.MIMEMessage.TransferEncoding = libcURL.MIMEMessage.TransferEncoding.Binary) As Boolean
+		Function AddElement(Name As String, Value As String, AdditionalHeaders As libcURL.ListPtr = Nil, Encoding As libcURL.TransferEncoding = libcURL.TransferEncoding.Binary) As Boolean
 		  ' Adds the passed Value to the form using the specified Name.
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MIMEMessage.AddElement
 		  
 		  Dim part As Ptr = AddPart()
-		  If part = Nil Then
-		    mLastError = libcURL.Errors.MIME_ADD_FAILED
-		    Return False
-		  End If
 		  If Not SetPartName(part, Name) Then Return False
 		  If Not SetPartData(part, Value) Then Return False
 		  If Encoding <> TransferEncoding.Binary Then
@@ -124,7 +109,17 @@ Implements FormStreamGetter
 		  ' See:
 		  ' http://curl.haxx.se/libcurl/c/curl_mime_addpart.html
 		  
-		  Return curl_mime_addpart(mHandle)
+		  If Owner = Nil Then
+		    mLastError = libcURL.Errors.MIME_OWNER_MISSING
+		    Raise New cURLException(Me)
+		  End If
+		  
+		  Dim part As Ptr = curl_mime_addpart(mHandle)
+		  If part = Nil Then
+		    mLastError = libcURL.Errors.MIME_ADD_FAILED
+		    Raise New cURLException(Me)
+		  End If
+		  Return part
 		End Function
 	#tag EndMethod
 
@@ -154,7 +149,37 @@ Implements FormStreamGetter
 	#tag EndMethod
 
 	#tag Method, Flags = &h1000
+		Sub Constructor(Owner As libcURL.EasyHandle, FromDict As Dictionary)
+		  ' Constructs a new MIME message from a dictionary. You must specify an EasyHandle to be the owner of the
+		  ' MIMEMessage.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MIMEMessage.Constructor
+		  
+		  Me.Constructor(Owner)
+		  For Each k As String In FromDict.Keys
+		    Dim v As Variant = FromDict.Value(k)
+		    If v IsA FolderItem Then
+		      Dim f As FolderItem = v
+		      Call Me.AddElement(k, f)
+		    ElseIf v.Type = Variant.TypeString Then
+		      Call Me.AddElement(k, v.StringValue)
+		    Else
+		      mLastError = libcURL.Errors.MIME_MANUAL_ONLY
+		      Raise New cURLException(Me)
+		    End If
+		  Next
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h1000
 		Sub Constructor(MessagePtr As Ptr, ParentMessage As libcURL.MIMEMessage)
+		  ' Constructs a non-freeable instance of MIMEMessage which references a sub-part of the
+		  ' ParentMessage. (Used by MIMEMessagePart.SubPart)
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.MIMEMessage.Constructor
+		  
 		  Dim own As EasyHandle = ParentMessage.Owner
 		  // Calling the overridden superclass constructor.
 		  // Constructor(GlobalInitFlags As Integer) -- From libcURL.cURLHandle
@@ -223,7 +248,7 @@ Implements FormStreamGetter
 
 	#tag Method, Flags = &h0
 		Function GetElement(Index As Integer) As libcURL.MIMEMessagePart
-		  ' Returns a reference to the MultipartFormElement at the specified index; if the index is out of bounds
+		  ' Returns a reference to the MIMEMessagePart at the specified index; if the index is out of bounds
 		  ' then an OutOfBoundsException will be raised.
 		  '
 		  ' See:
@@ -281,6 +306,14 @@ Implements FormStreamGetter
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		 Shared Function IsAvailable() As Boolean
+		  ' Returns True if the MIME API is available (if not then use the MultipartForm class instead.)
+		  
+		  Return libcURL.Version.IsAtLeast(7, 56, 0)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Operator_Compare(OtherMessage As libcURL.MIMEMessage) As Integer
 		  ' Overloads the comparison operator(=), permitting direct comparisons between instances of MIMEMessage.
 		  '
@@ -308,7 +341,7 @@ Implements FormStreamGetter
 		  Dim sz As Integer = NumItems * Size
 		  Dim mb As MemoryBlock = r.Read(sz)
 		  Dim buf As MemoryBlock = Buffer
-		  If mb.Size > 0 Then buf.StringValue(0, mb.Size) = mb.StringValue(0, mb.Size)
+		  If mb.Size > 0 Then buf.StringValue(0, mb.Size) = mb
 		  Return mb.Size
 		  
 		Exception Err As RuntimeException
@@ -512,15 +545,6 @@ Implements FormStreamGetter
 		  Boundary As Ptr
 		State As Integer
 	#tag EndStructure
-
-
-	#tag Enum, Name = TransferEncoding, Type = Integer, Flags = &h0
-		Binary
-		  SevenBit
-		  EightBit
-		  Base64
-		QuotedPrintable
-	#tag EndEnum
 
 
 	#tag ViewBehavior

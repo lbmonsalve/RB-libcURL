@@ -119,6 +119,11 @@ Protected Class CookieEngine
 		  ' See:
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.CookieEngine.Lookup
 		  
+		  If URLParser.IsAvailable Then
+		    Dim u As New URLParser(CookieDomain)
+		    CookieDomain = u.HostName
+		  End If
+		  
 		  Dim c As Integer = Me.Count
 		  For i As Integer = StartWith To c - 1
 		    Dim n, d As String
@@ -128,8 +133,8 @@ Protected Class CookieEngine
 		      If d = "" And CookieDomain = "" Then Return i
 		      If Strict Then
 		        If CompareDomains(CookieDomain, d, Owner) Then Return i
-		      Else
-		        If CookieDomain = "" Or CookieDomain = d Or "." + CookieDomain = d Or (Not Strict And InStr(d, CookieDomain) > 0) Then Return i
+		      ElseIf InStr(d, CookieDomain) > 0 Then
+		        Return i
 		      End If
 		    End If
 		  Next
@@ -255,7 +260,13 @@ Protected Class CookieEngine
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.CookieEngine.SetCookie
 		  
 		  Dim c As String = "Set-Cookie: " + Name + "=" + Value
-		  If Domain <> "" Then c = c + "; Domain=" + Domain
+		  If Domain <> "" Then
+		    If URLParser.IsAvailable Then
+		      Dim u As New URLParser(Domain)
+		      Domain = u.HostName
+		    End If
+		     c = c + "; Domain=" + Domain
+		  End If
 		  If Path <> "" Then c = c + "; path=" + Path
 		  If Expires <> Nil Then c = c + "; Expires=" + libcURL.ParseDate(Expires)
 		  If HTTPOnly Then c = c + "; httpOnly"

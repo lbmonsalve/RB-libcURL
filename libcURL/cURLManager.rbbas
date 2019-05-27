@@ -63,26 +63,6 @@ Protected Class cURLManager
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Attributes( deprecated )  Sub Constructor(CopyOpts As libcURL.cURLManager)
-		  ' This method is deprecated. To duplicate an instance of cURLManager, duplicate its EasyItem
-		  ' and pass the duplicate to cURLManager.Constructor(EasyHandle) instead.
-		  '
-		  ' Creates a new instance of cURLManager by cloning the passed cURLManager
-		  '
-		  ' See:
-		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.Constructor
-		  
-		  Select Case CopyOpts.EasyItem
-		  Case IsA libcURL.Protocols.FTPWildCard
-		    mEasyItem = New libcURL.Protocols.FTPWildCard(CopyOpts.EasyItem)
-		  Else
-		    mEasyItem = New libcURL.EasyHandle(CopyOpts.EasyItem)
-		  End Select
-		  Me.Constructor()
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Sub Constructor(ExistingEasy As libcURL.EasyHandle)
 		  ' Creates a new instance of cURLManager by taking ownership of the passed EasyHandle
 		  '
@@ -277,6 +257,18 @@ Protected Class cURLManager
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function RequestHeaders() As libcURL.RequestHeaderEngine
+		  ' Returns a reference to a RequestHeaderEngine instance
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.RequestHeaders
+		  
+		  If mRequestHeaderEngine = Nil Then mRequestHeaderEngine = New RequestHeaderEngine(Me.EasyItem)
+		  Return mRequestHeaderEngine
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub Reset()
 		  If mEasyItem = Nil Then mEasyItem = New libcURL.EasyHandle Else mEasyItem.Reset
 		  Me.EasyItem = mEasyItem
@@ -288,6 +280,7 @@ Protected Class cURLManager
 		  mEasyItem.AutoReferer = True
 		  mEasyItem.HTTPCompression = libcURL.Version.LibZ.IsAvailable
 		  Me.Yield = True
+		  Me.RequestHeaders.Reset()
 		End Sub
 	#tag EndMethod
 
@@ -310,19 +303,6 @@ Protected Class cURLManager
 		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.SetOption
 		  
 		  If mEasyItem <> Nil Then Return mEasyItem.SetOption(OptionNumber, NewValue)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function SetRequestHeader(Name As String, Value As String) As Boolean
-		  ' Adds, updates, or removes the named request header. Headers will persist until removed or reset.
-		  ' Pass an empty value to remove the named header. Pass an empty name and an empty value to reset.
-		  '
-		  ' See:
-		  ' https://github.com/charonn0/RB-libcURL/wiki/libcURL.cURLManager.SetRequestHeader
-		  
-		  mRequestHeaders = mEasyItem.SetRequestHeader(mRequestHeaders, Name, Value)
-		  Return (mRequestHeaders <> Nil Or Name = "")
 		End Function
 	#tag EndMethod
 
@@ -540,7 +520,7 @@ Protected Class cURLManager
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mRequestHeaders As libcURL.ListPtr
+		Private mRequestHeaderEngine As libcURL.RequestHeaderEngine
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
