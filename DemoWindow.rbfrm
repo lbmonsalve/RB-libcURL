@@ -2516,7 +2516,11 @@ End
 		  Dim cURLCode As Integer = Client.LastError
 		  If Not SaveToFileChkBx.Value And cURLCode = 0 Then
 		    Dim data As String = Client.GetDownloadedData()
-		    Dim enc As TextEncoding = ParseContentType(Client.GetResponseHeaders.CommaSeparatedValues("Content-Type"))
+		    Dim enc As TextEncoding
+		    Dim headers As InternetHeaders = Client.GetResponseHeaders()
+		    If headers <> Nil And headers.NameCount("Content-Type") > 0 Then
+		      enc = ParseContentType(Client.GetResponseHeaders.CommaSeparatedValues("Content-Type"))
+		    End If
 		    If enc <> Nil Then data = DefineEncoding(data, enc)
 		    DownloadOutput.Text = data
 		  Else
@@ -2670,7 +2674,11 @@ End
 		    
 		    
 		    If Client.EasyItem.CA_ListFile <> Nil Then
-		      CAListFile.Text = Client.EasyItem.CA_ListFile.AbsolutePath
+		      #If RBVersion > 2019 Then
+		        CAListFile.Text = Client.EasyItem.CA_ListFile.NativePath
+		      #Else
+		        CAListFile.Text = Client.EasyItem.CA_ListFile.AbsolutePath
+		      #endif
 		    Else
 		      CAListFile.Text = "Not specified"
 		    End If
@@ -2830,7 +2838,11 @@ End
 #tag Events CAListFile
 	#tag Event
 		Sub Open()
-		  If Client.EasyItem.CA_ListFile <> Nil Then Me.Text = Client.EasyItem.CA_ListFile.AbsolutePath
+		  #If RBVersion > 2019 Then
+		    If Client.EasyItem.CA_ListFile <> Nil Then Me.Text = Client.EasyItem.CA_ListFile.NativePath
+		  #Else
+		    If Client.EasyItem.CA_ListFile <> Nil Then Me.Text = Client.EasyItem.CA_ListFile.AbsolutePath
+		  #endif
 		End Sub
 	#tag EndEvent
 	#tag Event
@@ -2857,7 +2869,12 @@ End
 		  If f <> Nil Then
 		    Client.EasyItem.CA_ListFile = f
 		    Client.EasyItem.Secure = False
-		    CAListFile.Text = Client.EasyItem.CA_ListFile.AbsolutePath
+		    #If RBVersion > 2019 Then
+		      CAListFile.Text = Client.EasyItem.CA_ListFile.NativePath
+		    #Else
+		      CAListFile.Text = Client.EasyItem.CA_ListFile.AbsolutePath
+		    #endif
+		    
 		  End If
 		End Sub
 	#tag EndEvent
@@ -2895,7 +2912,11 @@ End
 		  Dim f As FolderItem = GetOpenFolderItem(cURLTypes.SecurityCertificate)
 		  If f <> Nil Then
 		    If Client.EasyItem.SetOption(libcURL.Opts.SSLCERT, f) Then
-		      ClientCert.Text = f.AbsolutePath
+		      #If RBVersion > 2019 Then
+		        ClientCert.Text = f.NativePath
+		      #Else
+		        ClientCert.Text = f.AbsolutePath
+		      #endif
 		      ClientCertItem = f
 		    Else
 		      MsgBox("Unable to set client certificate!")
@@ -3581,7 +3602,7 @@ End
 		    ElseIf FormValue.Right = FormGenerator.TYPE_MIME Then ' MIME
 		      Dim frm As Dictionary = FormValue.Left
 		      Dim mime As New libcURL.MIMEMessage(Client.EasyItem, frm)
-		      If Not Client.Post(mURL, mime) Then 
+		      If Not Client.Post(mURL, mime) Then
 		        //meh
 		      End If
 		    Else
@@ -3602,6 +3623,7 @@ End
 		      name = NthField(u.Path, "/", CountFields(u.Path, "/"))
 		    End If
 		    Dim f As FolderItem = GetSaveFolderItem("", name)
+		    If f = Nil Then Return
 		    bs = BinaryStream.Create(f, True)
 		  End If
 		  PauseButton.Enabled = True
